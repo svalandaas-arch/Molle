@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1215">
+<title>Mølle for Android</title>
+<link rel="icon" href="../icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#0e1215;--panel:#171c20;--line:#2b343a;--fg:#eef2f1;--muted:#8c999f;--work:#ff8b3d;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;--body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45}
+main{max-width:480px;margin:0 auto;padding-inline:16px;padding-block:40px 48px;display:flex;flex-direction:column;gap:24px}
+.icon{width:96px;height:96px;border-radius:22px}
+h1{font-family:var(--display);font-size:clamp(34px,10vw,48px);line-height:1;margin:0;text-transform:uppercase}
+h1 span{color:var(--work)}
+p{margin:0;color:var(--muted)}
+.dl{display:flex;align-items:center;justify-content:center;height:60px;border-radius:12px;background:var(--work);color:#1a0d03;
+  font-family:var(--display);font-size:26px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;text-decoration:none}
+.dl:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:1px;border-radius:12px;overflow:hidden}
+li{background:var(--panel);padding:14px 16px;display:flex;gap:12px}
+li b{font-family:var(--display);font-size:22px;color:var(--work);min-width:16px}
+.small{font-size:14px}
+a.link{color:var(--work);font-weight:600}
+</style>
+</head>
+<body>
+<main>
+  <img class="icon" src="../icon-192.png" alt="">
+  <div>
+    <h1>Mølle <span>for Android</span></h1>
+    <p style="margin-top:8px">Intervaller på tredemølla, med pulsmåler, Zwift-fotpod og eksport til Strava og Garmin.</p>
+  </div>
+
+  <a class="dl" href="https://github.com/svalandaas-arch/Molle/releases/download/siste/molle.apk">Last ned appen</a>
+
+  <ol>
+    <li><b>1</b><span>Trykk på knappen og åpne <i>molle.apk</i> når den er lastet ned.</span></li>
+    <li><b>2</b><span>Første gang: tillat installering fra Chrome når Android spør.</span></li>
+    <li><b>3</b><span>Trykk Installer. Advarselen fra Play Protect kommer fordi appen ikke er fra Google Play.</span></li>
+  </ol>
+
+  <p class="small">Krever Android 10 eller nyere. Har du iPhone eller iPad, bruk <a class="link" href="../">nettappen</a> i stedet.</p>
+</main>
+</body>
+</html>
