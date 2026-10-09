@@ -32,6 +32,8 @@ jobs:
             exit 1
           fi
           cp app/build/outputs/apk/release/app-release.apk molle.apk
+          echo "{\"versionCode\": ${GITHUB_RUN_NUMBER}, \"versionName\": \"1.${GITHUB_RUN_NUMBER}\"}" > versjon.json
+          cat versjon.json
 
       - name: Last opp som vedlegg til bygget
         uses: actions/upload-artifact@v4
@@ -45,5 +47,7 @@ jobs:
           tag_name: siste
           name: Siste versjon
           body: Last ned molle.apk på telefonen og installer.
-          files: molle.apk
+          files: |
+            molle.apk
+            versjon.json
           make_latest: true

@@ -11,8 +11,10 @@ android {
         applicationId = "no.molle.intervaller"
         minSdk = 29
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        // Hvert bygg på GitHub får et nytt, høyere nummer, så appen kan se når det finnes en nyere versjon.
+        val build = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+        versionCode = build
+        versionName = "1.$build"
     }
 
     // Fast nøkkel i prosjektet, slik at nye versjoner kan installeres over de gamle

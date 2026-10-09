@@ -115,6 +115,9 @@ h1 span{color:var(--work)}
 .hrlist:empty{display:none}
 .zwcard .zwi{color:var(--work)}
 .zwcard.on{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--work) 60%,transparent)}
+.upd{border-color:var(--work)}
+.upd a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.appver{text-align:center;font-size:13px}
 .stdrow{display:flex;flex-wrap:wrap;gap:8px}
 .stdrow .btn{flex:1 1 180px;height:48px}
 .stdrow .btn:disabled{opacity:.6;cursor:default}
@@ -197,6 +200,11 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
     <p class="sub">Still inn økta, start, og juster farten underveis så den stemmer med mølla. Distansen regnes ut fra fart og tid.</p>
   </header>
 
+  <div id="updBanner" class="banner upd" hidden>
+    <div><b>Ny versjon av Mølle er klar</b><div class="sub" style="margin:2px 0 0" id="updText"></div></div>
+    <div class="acts"><a class="btn pri" id="updBtn" href="https://github.com/svalandaas-arch/Molle/releases/download/siste/molle.apk">Last ned</a><button class="btn" type="button" id="updLater">Senere</button></div>
+  </div>
+
   <div id="resume" class="banner" hidden></div>
 
   <section class="hrcard" id="hrCard">
@@ -241,6 +249,8 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
     <label for="spChipsIn">Fartsknapper under løping<small>Fart i km/t skilt med mellomrom, for eksempel «8 10 12 14 16,5». Trykk på en av dem under økta for å hoppe rett til den farten.</small></label>
     <input id="spChipsIn" inputmode="decimal" autocomplete="off">
   </div>
+
+  <p class="hint appver" id="appVer" hidden></p>
 
   <section id="histWrap" class="group" hidden>
     <div class="lbl" style="margin-bottom:8px">Siste økter</div>
@@ -1033,6 +1043,26 @@ $('#spChips').onclick = e => {
 
 buildForm(); showForm(); soundIcon(); renderSetupExtras(); hrUI();
 if (window.MolleNative){ try{ MolleNative.status(); }catch{} }
+
+/* ---------- oppdateringer (Android) ---------- */
+let updLast = 0, updSnoozed = false;
+window.onNativeUpdate = name => {
+  if (updSnoozed) return;
+  $('#updText').textContent = `Versjon ${name}. Last ned og installer, så beholder du økter og innstillinger.`;
+  $('#updBanner').hidden = false;
+};
+$('#updLater').onclick = () => { updSnoozed = true; $('#updBanner').hidden = true; };
+function checkUpdate(){
+  if (!window.MolleNative || !MolleNative.checkUpdate) return;
+  if (Date.now() - updLast < 3600e3) return;
+  updLast = Date.now();
+  try{ MolleNative.checkUpdate(); }catch{}
+}
+if (window.MolleNative){
+  try{ const v = MolleNative.appVersion(); if (v){ $('#appVer').textContent = `Mølle ${v}`; $('#appVer').hidden = false; } }catch{}
+  checkUpdate();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !running) checkUpdate(); });
+}
 
 })();
 </script>

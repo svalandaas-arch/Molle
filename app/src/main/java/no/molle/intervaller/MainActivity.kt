@@ -16,6 +16,9 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : Activity() {
 
@@ -138,6 +141,20 @@ class MainActivity : Activity() {
         else BleHub.message("Appen trenger Bluetooth-tilgang. Gi tilgang under Innstillinger → Apper → Mølle → Tillatelser.")
     }
 
+    @Suppress("DEPRECATION")
+    private fun versionCode(): Long = try {
+        packageManager.getPackageInfo(packageName, 0).longVersionCode
+    } catch (_: Exception) { 0L }
+
+    @Suppress("DEPRECATION")
+    private fun versionName(): String = try {
+        packageManager.getPackageInfo(packageName, 0).versionName ?: ""
+    } catch (_: Exception) { "" }
+
+    companion object {
+        private const val UPDATE_URL = "https://github.com/svalandaas-arch/Molle/releases/download/siste/versjon.json"
+    }
+
     fun keepScreenOn(on: Boolean) = runOnUiThread {
         if (on) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -162,5 +179,31 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface fun saveFile(name: String, content: String): String = FileSaver.save(this@MainActivity, name, content)
+
+        @JavascriptInterface fun appVersion(): String = versionName()
+
+        /** Ser etter en nyere versjon på GitHub og sier fra til siden hvis det finnes en. */
+        @JavascriptInterface fun checkUpdate() {
+            Thread {
+                try {
+                    val c = URL(UPDATE_URL).openConnection() as HttpURLConnection
+                    c.connectTimeout = 8000
+                    c.readTimeout = 8000
+                    c.instanceFollowRedirects = true
+                    c.setRequestProperty("Cache-Control", "no-cache")
+                    if (c.responseCode == 200) {
+                        val o = JSONObject(c.inputStream.bufferedReader().use { it.readText() })
+                        val latest = o.optLong("versionCode", 0)
+                        val name = o.optString("versionName", "")
+                        if (latest > versionCode()) {
+                            BleHub.js?.invoke("window.onNativeUpdate && window.onNativeUpdate(${JSONObject.quote(name)})")
+                        }
+                    }
+                    c.disconnect()
+                } catch (_: Exception) {
+                    // Ingen nett eller GitHub svarer ikke: prøv igjen neste gang.
+                }
+            }.start()
+        }
     }
 }
