@@ -2,7 +2,10 @@ name: Bygg APK
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
   workflow_dispatch:
 
 permissions:
@@ -12,19 +15,22 @@ jobs:
   bygg:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
-
       - name: Bygg appen
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon --stacktrace
+          set -o pipefail
+          if ! ./gradlew assembleRelease --no-daemon --console=plain 2>&1 | tee bygg.log; then
+            # Gjør feilene synlige som merknader på bygget
+            grep -E "^e: |error:|What went wrong|^> |Exception" -A2 bygg.log | head -60 | sed 's/%/%25/g' | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          fi
           cp app/build/outputs/apk/release/app-release.apk molle.apk
 
       - name: Last opp som vedlegg til bygget
