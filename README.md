@@ -4,7 +4,7 @@ Intervaller på tredemølla: still inn økta på forhånd, se distanse, tid, far
 
 ## Nettappen
 
-**https://svalandaas-arch.github.io/molle/**
+**https://svalandaas-arch.github.io/Molle/**
 
 Åpne lenken i Chrome på Android og velg ⋮ → «Installer app». På iPhone og iPad: Safari → Del → «Legg til på Hjem-skjerm» (uten pulsmåler, siden Safari ikke støtter Bluetooth).
 
