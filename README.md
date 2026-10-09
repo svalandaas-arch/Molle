@@ -4,9 +4,11 @@ Intervaller på tredemølla: still inn økta på forhånd, se distanse, tid, far
 
 ## Nettappen
 
-**https://svalandaas-arch.github.io/Molle/**
+**https://svalandaas-arch.github.io/Molle/** – startside der du velger Android eller iPhone/iPad.
 
-Åpne lenken i Chrome på Android og velg ⋮ → «Installer app». På iPhone og iPad: Safari → Del → «Legg til på Hjem-skjerm» (uten pulsmåler, siden Safari ikke støtter Bluetooth).
+- Android: `…/Molle/android/` – nedlasting av appen
+- iPhone og iPad: `…/Molle/iphone/` – legges på hjemskjermen fra Safari (uten pulsmåler, siden Safari ikke støtter Bluetooth)
+- Selve nettappen: `…/Molle/app/`
 
 Koden ligger i `docs/`.
 
@@ -33,7 +35,7 @@ Kadens anslås ut fra farten. Spør Zwift om å kalibrere fotpoden, setter du de
 
 ## Oppbygging
 
-- `docs/` – nettappen (publiseres med GitHub Pages)
+- `docs/` – startside, nedlastingssider og nettappen i `docs/app/` (publiseres med GitHub Pages)
 - `app/src/main/assets/www/index.html` – samme app med kobling til Android
 - `app/src/main/java/…` – Android-delen: Bluetooth (fotpod og puls), bakgrunnstjeneste, lagring av filer
 
