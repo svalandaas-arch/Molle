@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lite ikon i varslingsfeltet: intervallstolper -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M3,14h3v6h-3z M8,9h3v11h-3z M13,4h3v16h-3z M18,9h3v11h-3z"/>
+</vector>
