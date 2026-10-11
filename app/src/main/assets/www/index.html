@@ -122,7 +122,8 @@ h1 span{color:var(--work)}
 .stdrow .btn{flex:1 1 180px;height:48px}
 .stdrow .btn:disabled{opacity:.6;cursor:default}
 .btn.ghost{background:transparent}
-.chip.std{border-color:var(--work);color:var(--work)}
+.chip.on{background:var(--work);border-color:var(--work);color:#1a0d03;font-weight:600}
+.chip.on:active{background:var(--work)}
 .hist .hr{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .hbtns{display:flex;gap:6px}
 .mini.del{color:var(--muted)}
@@ -486,13 +487,14 @@ $('#setup').addEventListener('click', e => {
 /* ---------- egne hurtigvalg ---------- */
 const getQuick = () => store.get('molle.quick', null) || clone(PRESETS);
 let quickEdit = false;
+let activeQuick = 'std'; // 'std' eller navnet på hurtigvalget som er valgt
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function renderQuick(){
   const q = getQuick();
-  $('#presets').innerHTML = (quickEdit ? '' : `<button class="chip std" data-p="std">Standard</button>`) +
+  $('#presets').innerHTML = (quickEdit ? '' : `<button class="chip${activeQuick === 'std' ? ' on' : ''}" data-p="std" aria-pressed="${activeQuick === 'std'}">Standard</button>`) +
     q.map((p,i) => quickEdit
       ? `<span class="chip editing">${esc(p.n)}<button type="button" data-del="${i}" aria-label="Fjern ${esc(p.n)}">×</button></span>`
-      : `<button class="chip" data-p="${i}">${esc(p.n)}</button>`).join('') +
+      : `<button class="chip${activeQuick === p.n ? ' on' : ''}" data-p="${i}" aria-pressed="${activeQuick === p.n}">${esc(p.n)}</button>`).join('') +
     (!q.length && quickEdit ? '<span class="hint">Ingen hurtigvalg.</span>' : '');
   $('#qEdit').textContent = quickEdit ? 'Ferdig' : 'Rediger';
   $('#qEditHint').hidden = !quickEdit;
@@ -500,8 +502,9 @@ function renderQuick(){
 }
 $('#presets').onclick = e => {
   const del = e.target.closest('[data-del]');
-  if (del){ const q = getQuick(); q.splice(+del.dataset.del, 1); store.set('molle.quick', q); renderQuick(); return; }
+  if (del){ const q = getQuick(); if (q[+del.dataset.del] && q[+del.dataset.del].n === activeQuick) activeQuick = ''; q.splice(+del.dataset.del, 1); store.set('molle.quick', q); renderQuick(); return; }
   const b = e.target.closest('[data-p]'); if (!b) return;
+  activeQuick = b.dataset.p === 'std' ? 'std' : getQuick()[b.dataset.p].n;
   if (b.dataset.p === 'std') plan = getStd();
   else plan = normalize(Object.assign({}, plan, {setRestSec:DEF.setRestSec, setRestSpeed:DEF.setRestSpeed}, clone(getQuick()[b.dataset.p].p)));
   buildForm();
@@ -510,7 +513,7 @@ $('#qEdit').onclick = () => { quickEdit = !quickEdit; $('#qForm').hidden = true;
 $('#qAdd').onclick = () => {
   const f = $('#qForm');
   f.hidden = !f.hidden;
-  if (!f.hidden){ $('#qName').value = sessionTitle(plan); $('#qName').focus(); $('#qName').select(); }
+  if (!f.hidden){ $('#qName').value = (activeQuick && activeQuick !== 'std') ? activeQuick : sessionTitle(plan); $('#qName').focus(); $('#qName').select(); }
 };
 $('#qCancel').onclick = () => { $('#qForm').hidden = true; };
 $('#qForm').onsubmit = e => {
@@ -520,6 +523,7 @@ $('#qForm').onsubmit = e => {
   const i = q.findIndex(x => x.n.toLowerCase() === n.toLowerCase());
   const item = {n, p: clone(plan)};
   if (i >= 0) q[i] = item; else q.push(item);
+  activeQuick = n;
   store.set('molle.quick', q);
   $('#qForm').hidden = true;
   renderQuick();
@@ -530,7 +534,7 @@ $('#qRestore').onclick = () => {
   store.set('molle.quick', q); renderQuick();
 };
 $('#saveStd').onclick = () => { store.set('molle.default', clone(plan)); showForm(); };
-$('#resetStd').onclick = () => { plan = getStd(); buildForm(); };
+$('#resetStd').onclick = () => { plan = getStd(); activeQuick = 'std'; buildForm(); };
 
 /* ---------- økt-modell ---------- */
 function buildSegs(p){
