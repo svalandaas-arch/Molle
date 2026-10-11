@@ -255,7 +255,7 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
 
   <div class="toggle chipset">
     <label for="spChipsIn">Fartsknapper under løping<small>Fart i km/t skilt med mellomrom, for eksempel «8 10 12 14 16,5». Trykk på en av dem under økta for å hoppe rett til den farten.</small></label>
-    <input id="spChipsIn" inputmode="decimal" autocomplete="off">
+    <input id="spChipsIn" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   </div>
 
   <section id="histWrap" class="group" hidden>
@@ -383,6 +383,7 @@ const DEF_CHIPS = [8, 10, 12, 14, 16];
 const getChips = () => { const c = store.get('molle.chips', null); return Array.isArray(c) && c.length ? c : DEF_CHIPS; };
 const chipsIn = $('#spChipsIn');
 const showChips = () => { chipsIn.value = getChips().map(v => dec(v).replace(',0', '')).join(' '); };
+chipsIn.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); chipsIn.blur(); } });
 chipsIn.addEventListener('change', () => {
   const v = chipsIn.value.split(/[\s;]+/).map(parseNum).filter(x => !isNaN(x) && x > 0 && x <= 30).map(x => Math.round(x*10)/10).slice(0, 8);
   store.set('molle.chips', v.length ? v : DEF_CHIPS); showChips();
