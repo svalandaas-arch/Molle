@@ -152,6 +152,11 @@ h1 span{color:var(--work)}
 #progPrev div{display:flex;justify-content:space-between;gap:10px;background:var(--panel);padding:8px 14px;font-variant-numeric:tabular-nums}
 #progPrev div b{font-family:var(--display);font-size:18px;font-weight:600}
 body.locked{overflow:hidden}
+.upnext{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;background:var(--work);color:#1a0d03;border-radius:12px;padding:10px 14px;font-weight:600;text-align:center}
+.upnext b{font-family:var(--display);font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;line-height:1}
+.upnext span{font-family:var(--display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+@media (prefers-reduced-motion:no-preference){.upnext.pulse{animation:upPulse .6s ease-out 3}}
+@keyframes upPulse{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
 .stdrow{display:flex;flex-wrap:wrap;gap:8px}
 .stdrow .btn{flex:1 1 180px;height:48px}
 .stdrow .btn:disabled{opacity:.6;cursor:default}
@@ -334,6 +339,7 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
   </div>
   <div class="bar"><i id="segBar"></i></div>
   <div class="clock"><div class="num" id="remain">0:00</div><div class="lbl" id="remainLbl">igjen av delen</div></div>
+  <div class="upnext" id="upNext" hidden role="status" aria-live="polite"></div>
 
   <div class="speed">
     <button data-sp="-0.5">−0,5</button>
@@ -806,8 +812,34 @@ function sample(t){
 }
 function nextSeg(t){
   sample(t || Date.now());
+  const done = S.segs[S.idx];
   S.idx++; lastBeep = -1;
   if (S.idx < S.segs.length){ beep(S.segs[S.idx].type === 'work' ? 990 : 520, .55); buzz(); }
+  // Varsel når neste drag går raskere eller brattere enn draget som nettopp ble ferdig
+  if (done && done.type === 'work'){
+    let j = S.idx; while (j < S.segs.length && S.segs[j].type !== 'work') j++;
+    const nw = S.segs[j];
+    if (nw && (nw.speed - done.speed > 0.05 || (nw.inc||0) - (done.inc||0) > 0.05)){
+      S.upNext = {to: j, speed: done.speed, inc: done.inc || 0};
+      setTimeout(() => { beep(880, .12); setTimeout(() => beep(1100, .12), 160); setTimeout(() => beep(1320, .25), 320); }, 650);
+      try{ navigator.vibrate && navigator.vibrate([200,80,200,80,400]); }catch{}
+      upPulse = true;
+    } else S.upNext = null;
+  }
+}
+let upPulse = false;
+function upNextUI(){
+  const el = $('#upNext'), u = S && S.upNext;
+  const nw = u && S.segs[u.to];
+  if (!u || !nw || S.idx > u.to || S.segs[S.idx].type === 'work'){ el.hidden = true; return; }
+  const ds = Math.round((nw.speed - u.speed)*10)/10, di = Math.round(((nw.inc||0) - u.inc)*10)/10;
+  const parts = [];
+  if (ds > 0) parts.push(`${dec(nw.speed)} km/t (+${dec(ds)})`);
+  if (di > 0) parts.push(`${dec(nw.inc||0)} % (+${dec(di)})`);
+  if (!parts.length){ el.hidden = true; return; }
+  el.innerHTML = `<b>↑ Økning neste drag</b><span>${parts.join(' · ')}</span>`;
+  el.hidden = false;
+  if (upPulse){ upPulse = false; el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
 }
 function skip(){
   if (!S) return;
@@ -853,6 +885,7 @@ function render(){
   $('#segBar').style.width = seg.free ? '100%' : (seg.elapsed/seg.dur*100) + '%';
   $('#remain').textContent = segClock(seg);
   $('#remainLbl').textContent = seg.free ? 'tid løpt' : 'igjen av delen';
+  upNextUI();
   $('#skipBtn').disabled = !!(seg.free && S.idx === S.segs.length - 1);
   liveText();
   $('#speed').textContent = dec(seg.speed);
