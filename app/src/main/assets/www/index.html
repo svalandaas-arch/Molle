@@ -135,6 +135,23 @@ h1 span{color:var(--work)}
 .top .seg{min-width:0}
 #segLabel{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .iconbtn.edit svg{width:18px;height:18px}
+.progbtn{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;background:var(--panel);border-radius:10px;padding:12px 14px;border:1px solid transparent}
+.progbtn.on{border-color:var(--work)}
+.progbtn b{display:block;font-weight:600}
+.progbtn small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.progbtn.on small{color:var(--work)}
+.progbtn .arrow{font-family:var(--display);font-size:26px;color:var(--muted)}
+.sheet{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center}
+.sheet[hidden]{display:none}
+.sheet-in{width:100%;max-width:560px;max-height:88%;overflow-y:auto;background:var(--bg);border-radius:16px 16px 0 0;border-top:1px solid var(--line);padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sheet-head h2{margin:0;font-family:var(--display);font-size:26px;text-transform:uppercase}
+#progRows.off{opacity:.45;pointer-events:none}
+.progprev{display:flex;flex-direction:column;gap:6px}
+#progPrev{display:flex;flex-direction:column;gap:1px;border-radius:10px;overflow:hidden}
+#progPrev div{display:flex;justify-content:space-between;gap:10px;background:var(--panel);padding:8px 14px;font-variant-numeric:tabular-nums}
+#progPrev div b{font-family:var(--display);font-size:18px;font-weight:600}
+body.locked{overflow:hidden}
 .stdrow{display:flex;flex-wrap:wrap;gap:8px}
 .stdrow .btn{flex:1 1 180px;height:48px}
 .stdrow .btn:disabled{opacity:.6;cursor:default}
@@ -258,6 +275,21 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
   <section class="group" data-g="warm"></section>
   <section class="group" data-g="work"></section>
   <section class="group" data-g="sets"></section>
+
+  <div class="sheet" id="progSheet" hidden>
+    <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="progTitle">
+      <div class="sheet-head"><h2 id="progTitle">Økning underveis</h2><button type="button" class="btn" id="progDone">Ferdig</button></div>
+      <p class="hint">Gjør dragene gradvis tøffere. Pausene blir som før.</p>
+      <label class="toggle" for="progOn"><span>Slå på økning</span><input type="checkbox" id="progOn"></label>
+      <div class="rows" id="progRows">
+        <div class="row"><label for="f-prog-speed">Øk farten med</label><div class="stepper"><button type="button" data-k="prog.speed" data-d="-1" aria-label="Mindre">−</button><span class="val"><input id="f-prog-speed" data-k="prog.speed" data-v="prog.speed" inputmode="decimal" autocomplete="off"><span class="u">km/t</span></span><button type="button" data-k="prog.speed" data-d="1" aria-label="Mer">+</button></div></div>
+        <div class="row"><label for="f-prog-every">For hvert</label><div class="stepper"><button type="button" data-k="prog.every" data-d="-1" aria-label="Mindre">−</button><span class="val"><input id="f-prog-every" data-k="prog.every" data-v="prog.every" inputmode="numeric" autocomplete="off"><span class="u">. drag</span></span><button type="button" data-k="prog.every" data-d="1" aria-label="Mer">+</button></div></div>
+        <div class="row"><label for="f-prog-incline">Øk stigningen med</label><div class="stepper"><button type="button" data-k="prog.incline" data-d="-1" aria-label="Mindre">−</button><span class="val"><input id="f-prog-incline" data-k="prog.incline" data-v="prog.incline" inputmode="decimal" autocomplete="off"><span class="u">%</span></span><button type="button" data-k="prog.incline" data-d="1" aria-label="Mer">+</button></div></div>
+      </div>
+      <label class="toggle" for="progPerSet" id="progPerSetRow"><span>Start på nytt i hver serie<small>Første drag i hver serie går på grunnfarten igjen.</small></span><input type="checkbox" id="progPerSet"></label>
+      <div class="progprev"><span class="lbl">Slik blir dragene</span><div id="progPrev"></div></div>
+    </div>
+  </div>
   <section class="group" data-g="cool"></section>
 
   <div class="stdrow">
@@ -359,7 +391,8 @@ const TYPES = {
 const isRest = t => t === 'rest' || t === 'srest';
 
 const step_ = (reps, workSec, workSpeed, restSec, restSpeed, workIncline=1, restIncline=1) => ({reps, workSec, workSpeed, workIncline, restSec, restSpeed, restIncline});
-const DEF = {warmMin:10,warmSpeed:9,warmIncline:1,coolMin:5,coolSpeed:8.5,coolIncline:1,sets:1,setRestSec:180,setRestSpeed:6,setRestIncline:1,steps:[step_(6,180,14,90,7)]};
+const DEF = {warmMin:10,warmSpeed:9,warmIncline:1,coolMin:5,coolSpeed:8.5,coolIncline:1,sets:1,setRestSec:180,setRestSpeed:6,setRestIncline:1,steps:[step_(6,180,14,90,7)],
+  prog:{on:false, speed:0.2, every:3, incline:0, perSet:false}};
 const PRESETS = [
   {n:'4 × 4 min', p:{sets:1, steps:[step_(4,240,14,180,7)]}},
   {n:'6 × 3 min', p:{sets:1, steps:[step_(6,180,14.5,90,7)]}},
@@ -380,7 +413,10 @@ const SPEC = {
   workSec:{l:'Dragtid',st:15,min:15,max:1800,time:1}, workSpeed:{l:'Dragfart',...SPEED,min:1},
   restSec:{l:'Pause',st:15,min:0,max:900,time:1}, restSpeed:{l:'Pausefart',...SPEED},
   warmIncline:{l:'Stigning',...INC}, coolIncline:{l:'Stigning',...INC}, setRestIncline:{l:'Seriepausestigning',...INC},
-  workIncline:{l:'Dragstigning',...INC}, restIncline:{l:'Pausestigning',...INC}
+  workIncline:{l:'Dragstigning',...INC}, restIncline:{l:'Pausestigning',...INC},
+  speed:{l:'Øk farten med',u:'km/t',st:0.1,min:0,max:3,dec:1},
+  every:{l:'For hvert',u:'. drag',st:1,min:1,max:20},
+  incline:{l:'Øk stigningen med',u:'%',st:0.5,min:0,max:5,dec:1}
 };
 const MAX_STEPS = 12;
 
@@ -393,9 +429,11 @@ function normalize(p){
     ['reps','workSec','workSpeed','restSec','restSpeed'].forEach(k => delete p[k]);
   }
   p.steps.forEach(x => { if (x.workIncline == null) x.workIncline = 1; if (x.restIncline == null) x.restIncline = 1; });
+  p.prog = Object.assign(clone(DEF.prog), p.prog || {});
   return p;
 }
-const canon = p => JSON.stringify([p.warmMin,p.warmSpeed,p.warmIncline,p.coolMin,p.coolSpeed,p.coolIncline,p.sets,p.setRestSec,p.setRestSpeed,p.setRestIncline,p.steps.map(s => [s.reps,s.workSec,s.workSpeed,s.workIncline,s.restSec,s.restSpeed,s.restIncline])]);
+const canon = p => JSON.stringify([p.warmMin,p.warmSpeed,p.warmIncline,p.coolMin,p.coolSpeed,p.coolIncline,p.sets,p.setRestSec,p.setRestSpeed,p.setRestIncline,p.steps.map(s => [s.reps,s.workSec,s.workSpeed,s.workIncline,s.restSec,s.restSpeed,s.restIncline]),
+  p.prog && p.prog.on ? [p.prog.speed,p.prog.every,p.prog.incline,p.prog.perSet] : 0]);
 const getStd = () => normalize(store.get('molle.default', store.get('molle.plan', null)));
 let plan = getStd();
 const DEF_CHIPS = [8, 10, 12, 14, 16];
@@ -452,6 +490,7 @@ function buildForm(){
         <button type="button" data-act="del" data-i="${i}">Fjern</button></span></div>` : ''}
       ${['reps','workSec','workSpeed','workIncline','restSec','restSpeed','restIncline'].map(k => stepper(`steps.${i}.${k}`)).join('')}
     </div>`).join('') +
+    `<button type="button" class="progbtn" id="progBtn"><span><b>Økning underveis</b><small id="progSum"></small></span><span class="arrow" aria-hidden="true">›</span></button>` +
     `<div class="stdrow"><button class="btn" type="button" data-act="add" ${plan.steps.length >= MAX_STEPS ? 'disabled' : ''}>+ Legg til steg</button>${many ? '' : `<button class="btn" type="button" data-act="dup" data-i="0">Kopier steget</button>`}</div>`;
   document.querySelector('[data-g="sets"]').innerHTML = ghead('Serier','var(--srest)') +
     `<p class="hint">Gjenta alle stegene flere ganger, med seriepause i stedet for vanlig pause mellom seriene.</p>` +
@@ -466,6 +505,7 @@ function showForm(){
     if (el.tagName === 'INPUT'){ if (document.activeElement !== el) el.value = txt; } else el.textContent = txt;
   });
   $('#setRows').hidden = plan.sets < 2;
+  progUI();
   const segs = buildSegs(plan);
   const dur = segs.reduce((a,s) => a + s.dur, 0);
   const km = segs.reduce((a,s) => a + s.dur*s.speed/3600, 0);
@@ -568,18 +608,70 @@ $('#qRestore').onclick = () => {
 $('#saveStd').onclick = () => { store.set('molle.default', clone(plan)); showForm(); };
 $('#resetStd').onclick = () => { plan = getStd(); activeQuick = 'std'; buildForm(); };
 
+/* ---------- økning underveis ---------- */
+function progSummary(){
+  const g = plan.prog;
+  if (!g.on || (!g.speed && !g.incline)) return 'Av';
+  const parts = [];
+  if (g.speed) parts.push(`+${dec(g.speed)} km/t`);
+  if (g.incline) parts.push(`+${dec(g.incline)} %`);
+  return `${parts.join(' og ')} ${g.every === 1 ? 'for hvert drag' : `for hvert ${g.every}. drag`}`;
+}
+function progUI(){
+  const btn = $('#progBtn'); if (!btn) return;
+  const g = plan.prog, on = g.on && (g.speed || g.incline);
+  btn.classList.toggle('on', !!on);
+  $('#progSum').textContent = progSummary();
+  if ($('#progSheet').hidden) return;
+  $('#progOn').checked = g.on;
+  $('#progPerSet').checked = g.perSet;
+  $('#progPerSetRow').hidden = plan.sets < 2;
+  $('#progRows').classList.toggle('off', !g.on);
+  // forhåndsvisning: drag med lik fart og stigning slås sammen
+  const work = buildSegs(plan).filter(x => x.type === 'work');
+  const rows = [];
+  work.forEach((x, i) => {
+    const last = rows[rows.length - 1];
+    if (last && last.speed === x.speed && last.inc === x.inc && last.to === i) last.to = i + 1;
+    else rows.push({from: i + 1, to: i + 1, speed: x.speed, inc: x.inc});
+  });
+  $('#progPrev').innerHTML = rows.slice(0, 14).map(r =>
+    `<div><span>${r.from === r.to ? `Drag ${r.from}` : `Drag ${r.from}–${r.to}`}</span><b>${dec(r.speed)} km/t${r.inc ? ` · ${dec(r.inc)} %` : ''}</b></div>`).join('') +
+    (rows.length > 14 ? `<div><span>…</span><b></b></div>` : '');
+}
+function openProg(){
+  $('#progSheet').hidden = false; document.body.classList.add('locked');
+  progUI(); showForm();
+}
+function closeProg(){ $('#progSheet').hidden = true; document.body.classList.remove('locked'); showForm(); }
+$('#setup').addEventListener('click', e => { if (e.target.closest('#progBtn')) openProg(); });
+$('#progDone').onclick = closeProg;
+$('#progSheet').addEventListener('click', e => { if (e.target === $('#progSheet')) closeProg(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#progSheet').hidden) closeProg(); });
+$('#progOn').onchange = e => { plan.prog.on = e.target.checked; if (plan.prog.on && !plan.prog.speed && !plan.prog.incline) plan.prog.speed = 0.2; showForm(); };
+$('#progPerSet').onchange = e => { plan.prog.perSet = e.target.checked; showForm(); };
+
 /* ---------- økt-modell ---------- */
 function buildSegs(p){
   const s = [];
   const add = (type, dur, speed, label, inc=0) => s.push({type, dur, speed, plan:speed, inc: inc||0, label, elapsed:0, dist:0, climb:0, incT:0});
   if (p.warmMin > 0) add('warm', p.warmMin*60, p.warmSpeed, 'Oppvarming', p.warmIncline);
   const perSet = p.steps.reduce((a,x) => a + x.reps, 0);
+  const pg = p.prog || {};
+  let n = 0; // drag talt for økning av fart og stigning
+  const bump = () => {
+    if (!pg.on) return [0, 0];
+    const steps = Math.floor((n - 1) / Math.max(1, pg.every || 1));
+    return [steps * (pg.speed || 0), steps * (pg.incline || 0)];
+  };
   for (let set = 1; set <= p.sets; set++){
     let k = 0;
+    if (pg.perSet) n = 0;
     p.steps.forEach((x, si) => {
       for (let r = 1; r <= x.reps; r++){
-        k++;
-        add('work', x.workSec, x.workSpeed, p.sets > 1 ? `S${set} · Drag ${k}/${perSet}` : `Drag ${k}/${perSet}`, x.workIncline);
+        k++; n++;
+        const [bs, bi] = bump();
+        add('work', x.workSec, Math.round((x.workSpeed + bs)*10)/10, p.sets > 1 ? `S${set} · Drag ${k}/${perSet}` : `Drag ${k}/${perSet}`, Math.round(((x.workIncline||0) + bi)*10)/10);
         const lastInSet = si === p.steps.length-1 && r === x.reps;
         if (!lastInSet){ if (x.restSec > 0) add('rest', x.restSec, x.restSpeed, 'Pause', x.restIncline); }
         else if (set < p.sets && p.setRestSec > 0) add('srest', p.setRestSec, p.setRestSpeed, 'Seriepause', p.setRestIncline);
