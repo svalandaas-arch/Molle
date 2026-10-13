@@ -91,6 +91,7 @@ h1 span{color:var(--work)}
 #qEditHint .link{padding:0 0 0 4px}
 .hrcard{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel);border-radius:10px;padding:12px 12px 12px 14px}
 .hrcard b{display:flex;align-items:center;gap:8px}
+.hrcard .btn{flex:none;white-space:nowrap}
 .hrcard .heart{color:var(--danger)}
 .hrcard.on{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--danger) 60%,transparent)}
 .stats{grid-template-columns:1fr 1fr!important}
@@ -157,6 +158,10 @@ body.locked{overflow:hidden}
 .upnext span{font-family:var(--display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
 @media (prefers-reduced-motion:no-preference){.upnext.pulse{animation:upPulse .6s ease-out 3}}
 @keyframes upPulse{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+.hrhelp{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.hrhelp p{margin:0;line-height:1.4}
+.hrhelp ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--fg)}
+.hrhelp .linkrow a{text-decoration:none;display:inline-flex;align-items:center}
 .stdrow{display:flex;flex-wrap:wrap;gap:8px}
 .stdrow .btn{flex:1 1 180px;height:48px}
 .stdrow .btn:disabled{opacity:.6;cursor:default}
@@ -258,6 +263,21 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
     <div><b><span class="heart">♥</span> Pulsmåler</b><div class="hint" id="hrStatus">Ikke tilkoblet</div></div>
     <button class="btn" type="button" id="hrBtn">Koble til</button>
   </section>
+  <div class="hrhelp" id="hrHelp" hidden>
+    <p><b>Pulsmåler på iPhone og iPad</b></p>
+    <p>Safari og de andre vanlige nettleserne på iPhone kan ikke koble til Bluetooth. Det kan nettleseren <b>Bluefy</b>, som er gratis.</p>
+    <ol>
+      <li>Last ned Bluefy fra App Store.</li>
+      <li>Åpne Bluefy og lim inn adressen til appen.</li>
+      <li>Trykk «Koble til» ved Pulsmåler og velg beltet ditt.</li>
+    </ol>
+    <div class="linkrow">
+      <a class="btn pri" href="https://apps.apple.com/app/id1492822055" target="_blank" rel="noopener">Hent Bluefy</a>
+      <button class="btn" type="button" id="hrCopy">Kopier adressen</button>
+    </div>
+    <span class="url" id="hrUrl">https://svalandaas-arch.github.io/Molle/app/</span>
+    <p class="hint">Økter og innstillinger blir ikke med over til Bluefy, siden hver nettleser lagrer for seg.</p>
+  </div>
   <div class="hrlist" id="hrList"></div>
 
   <section class="hrcard zwcard" id="zwCard" hidden>
@@ -1099,9 +1119,20 @@ function hrUI(){
   $('#hrCell').classList.toggle('off', !h);
   $('#hrLbl').textContent = on ? 'Puls' : (hrBusy ? 'Puls · kobler til …' : (NATIVE ? 'Puls · ikke tilkoblet' : 'Puls · koble til'));
 }
+const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+if (IOS && !navigator.bluetooth && !window.MolleNative) hrMsg = 'Krever nettleseren Bluefy på iPhone og iPad';
+$('#hrCopy').onclick = async () => {
+  const b = $('#hrCopy'), url = $('#hrUrl').textContent;
+  try{ await navigator.clipboard.writeText(url); b.textContent = 'Kopiert'; }
+  catch{ const r = document.createRange(); r.selectNodeContents($('#hrUrl')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = 'Merket – kopier selv'; }
+};
 async function hrConnect(){
   if (NATIVE){ nativeFocus = 'hr'; hrBusy = true; hrMsg = 'Leter etter pulsmålere …'; hrUI(); MolleNative.hrScan(); return; }
-  if (!navigator.bluetooth){ hrMsg = 'Bluetooth støttes ikke her. Bruk Chrome på Android.'; hrUI(); return; }
+  if (!navigator.bluetooth){
+    if (IOS){ hrMsg = 'Krever nettleseren Bluefy på iPhone og iPad'; $('#hrHelp').hidden = false; }
+    else hrMsg = 'Bluetooth støttes ikke i denne nettleseren. Bruk Chrome.';
+    hrUI(); return;
+  }
   try{
     const dev = await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});
     if (hrDev && hrDev !== dev) hrDisconnect();
