@@ -27,6 +27,10 @@ li b{font-family:var(--display);font-size:22px;color:var(--work);min-width:16px;
 .open{display:flex;align-items:center;justify-content:center;height:60px;border-radius:12px;background:var(--work);color:#1a0d03;
   font-family:var(--display);font-size:26px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;text-decoration:none}
 .open:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns .open{flex:1 1 150px}
+.open.alt{background:var(--panel);color:var(--fg);border:1px solid var(--line);font-size:20px;height:52px;cursor:pointer}
+.url{font-size:13px;color:var(--muted);user-select:all;word-break:break-all;margin-top:-12px}
 .note{background:var(--panel);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
 .note p{font-size:15px}
 .warn{display:none;border:1px solid var(--work);border-radius:12px;padding:12px 14px;color:var(--fg);font-size:15px}
@@ -56,14 +60,34 @@ li b{font-family:var(--display);font-size:22px;color:var(--work);min-width:16px;
 
   <a class="open" href="../app/">Åpne appen</a>
 
+  <span class="lbl" style="margin-top:8px">Med pulsbelte</span>
+  <p>Safari kan ikke koble til pulsbelte. Bruk heller den gratis nettleseren Bluefy, som kan det:</p>
+  <ol>
+    <li><b>1</b><span>Hent Bluefy fra App Store.</span></li>
+    <li><b>2</b><span>Kopier adressen under, åpne Bluefy og lim den inn i adressefeltet.</span></li>
+    <li><b>3</b><span>Trykk «Koble til» ved Pulsmåler og velg beltet ditt. Beltet må sende over Bluetooth.</span></li>
+    <li><b>4</b><span>Neste gang finner du appen under bokmerker eller historikk i Bluefy.</span></li>
+  </ol>
+  <div class="btns">
+    <a class="open alt" href="https://apps.apple.com/app/id1492822055" target="_blank" rel="noopener">Hent Bluefy</a>
+    <button class="open alt" type="button" id="copy">Kopier adressen</button>
+  </div>
+  <span class="url" id="url">https://svalandaas-arch.github.io/Molle/app/</span>
+
   <div class="note">
     <span class="lbl">Godt å vite</span>
-    <p>Pulsmåler fungerer ikke i Safari, fordi Safari ikke støtter Bluetooth. Vil du bruke pulsbelte, åpner du appen i den gratis nettleseren <a href="https://apps.apple.com/app/id1492822055" target="_blank" rel="noopener" style="color:var(--work);font-weight:600">Bluefy</a> i stedet. Zwift-fotpoden finnes bare i Android-appen.</p>
+    <p>Økter og innstillinger lagres i nettleseren. Bruker du både Safari og Bluefy, har hver sine egne hurtigvalg og historikk.</p>
+    <p>Zwift-fotpoden finnes bare i Android-appen.</p>
     <p>Bytter du til en annen app midt i økta, stopper pipene til du er tilbake. Tid og distanse blir likevel riktig.</p>
   </div>
 </main>
 <script>
 (() => {
+  const c = document.getElementById('copy'), u = document.getElementById('url');
+  c.onclick = async () => {
+    try{ await navigator.clipboard.writeText(u.textContent); c.textContent = 'Kopiert'; }
+    catch{ const r = document.createRange(); r.selectNodeContents(u); const s = getSelection(); s.removeAllRanges(); s.addRange(r); c.textContent = 'Merket – kopier selv'; }
+  };
   const ua = navigator.userAgent || '';
   if (/CriOS|FxiOS|EdgiOS|OPiOS|GSA\//.test(ua)) document.getElementById('notSafari').classList.add('on');
 })();
