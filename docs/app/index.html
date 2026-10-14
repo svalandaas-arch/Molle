@@ -984,11 +984,21 @@ function renderDone(){
 let lastRec = null;
 const STRAVA = 'https://www.strava.com/upload/select';
 const dl = Promise.resolve({ save: async ({filename, data}) => {
-  const url = URL.createObjectURL(data instanceof Blob ? data : new Blob([data]));
-  const a = document.createElement('a'); a.href = url; a.download = filename;
+  const blob = data instanceof Blob ? data : new Blob([data]);
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  // iPhone og iPad: del filen, så kan den arkiveres i Filer. Nedlastingslenker virker dårlig der.
+  if (ios && navigator.canShare){
+    const file = new File([blob], filename, {type: 'application/octet-stream'});
+    if (navigator.canShare({files: [file]})){
+      try{ await navigator.share({files: [file], title: filename}); return {status:'shared'}; }
+      catch(e){ if (e && e.name === 'AbortError') return {status:'cancelled'}; }
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.rel = 'noopener';
   document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
-  return {status:'saved'};
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  return {status: ios ? 'ios-download' : 'saved', url};
 }});
 function toRecord(S){
   const segs = S.segs.map(s => ({type:s.type, label:s.label, start:s.start||0, elapsed:s.elapsed, dist:s.dist, climb:s.climb||0, incT:s.incT||0, hrSum:s.hrSum||0, hrT:s.hrT||0, hrMax:s.hrMax||0}));
@@ -1025,11 +1035,17 @@ async function exportRec(r, msgEl){
   const stamp = new Date(r.start).toISOString().slice(0,16).replace(/[-:]/g,'').replace('T','-');
   const name = `molle-${stamp}`;
   try{
-    await d.save({filename: name + '.tcx', data: new Blob([toTCX(r)], {type:'application/vnd.garmin.tcx+xml'})});
+    const res = await d.save({filename: name + '.tcx', data: new Blob([toTCX(r)], {type:'application/vnd.garmin.tcx+xml'})});
     msgEl = msgEl || $('#histMsg');
+    if (res && res.status === 'cancelled') return;
+    const where = res && res.status === 'shared'
+      ? 'Valgte du «Arkiver i Filer», ligger filen i Filer-appen.'
+      : res && res.status === 'ios-download'
+        ? 'Filen havner i Filer-appen under Nedlastinger. Ser du den ikke, trykk på pilen øverst i nettleseren.'
+        : 'Lagret i Nedlastinger.';
     if (msgEl){
       msgEl.hidden = false;
-      msgEl.innerHTML = `<span>Lagret i Nedlastinger. Last opp .tcx-filen på Strava:</span>
+      msgEl.innerHTML = `<span>${where} Last opp .tcx-filen på Strava:</span>
         <span class="linkrow"><a class="btn pri" href="${STRAVA}" target="_blank" rel="noopener">Åpne Strava-opplasting</a><button class="btn" type="button" data-copy>Kopier lenke</button></span>
         <span class="url">${STRAVA}</span>`;
       msgEl.querySelector('[data-copy]').onclick = async ev => {
@@ -1039,7 +1055,8 @@ async function exportRec(r, msgEl){
       };
     }
   }catch(e){
-    if (msgEl) msgEl.textContent = 'Fikk ikke lagret filen. Prøv igjen.';
+    msgEl = msgEl || $('#histMsg');
+    if (msgEl){ msgEl.hidden = false; msgEl.textContent = 'Fikk ikke lagret filen' + (e && e.message ? ` (${e.message})` : '') + '. Prøv igjen, eller si fra hva som står her.'; }
   }
 }
 
