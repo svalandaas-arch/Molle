@@ -156,6 +156,9 @@ body.locked{overflow:hidden}
 .hrhelp p{margin:0;line-height:1.4}
 .hrhelp ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--fg)}
 .hrhelp .linkrow a{text-decoration:none;display:inline-flex;align-items:center}
+.stxt{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.stxt textarea{width:100%;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:14px;line-height:1.4;resize:vertical}
+.stxt .btn{align-self:flex-start}
 .stdrow{display:flex;flex-wrap:wrap;gap:8px}
 .stdrow .btn{flex:1 1 180px;height:48px}
 .stdrow .btn:disabled{opacity:.6;cursor:default}
@@ -1006,6 +1009,36 @@ function toRecord(S){
   return {title: S.title, start: first ? first.start : Date.now(), segs, samples: S.samples || []};
 }
 const iso = t => new Date(t).toISOString().replace(/\.\d{3}Z$/, 'Z');
+const xmlEsc = t => String(t).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+function stravaText(r){
+  const segs = r.segs.filter(x => x.elapsed > 0);
+  const km = segs.reduce((a,x) => a + x.dist, 0), sec = segs.reduce((a,x) => a + x.elapsed, 0);
+  const work = segs.filter(x => x.type === 'work');
+  const lines = [`${r.title} på tredemølla`, `${dec(km, 2)} km på ${fmtT(sec)} · snitt ${dec(sec ? km/sec*3600 : 0)} km/t`];
+  if (work.length){
+    const sp = work.map(x => x.elapsed ? x.dist/x.elapsed*3600 : 0);
+    const lo = Math.min(...sp), hi = Math.max(...sp);
+    const inc = work.map(x => x.elapsed ? (x.incT||0)/x.elapsed : 0);
+    const ilo = Math.min(...inc), ihi = Math.max(...inc);
+    let t = `Drag: ${Math.abs(hi - lo) < 0.05 ? dec(lo) : dec(lo) + '–' + dec(hi)} km/t`;
+    if (ihi >= 0.05) t += `, stigning ${Math.abs(ihi - ilo) < 0.05 ? dec(ilo) : dec(ilo) + '–' + dec(ihi)} %`;
+    lines.push(t);
+  }
+  const hrT = segs.reduce((a,x) => a + (x.hrT||0), 0);
+  if (hrT > 0){
+    const avg = Math.round(segs.reduce((a,x) => a + (x.hrSum||0), 0) / hrT);
+    const max = Math.max(...segs.map(x => x.hrMax||0));
+    lines.push(`Puls: snitt ${avg}, maks ${max}`);
+  }
+  const climb = segs.reduce((a,x) => a + (x.climb||0), 0);
+  if (climb >= 1) lines.push(`Høydemeter: ${Math.round(climb)} m`);
+  lines.push('Logget med Mølle');
+  return {title: `Mølle: ${r.title}`, text: lines.join('\n')};
+}
+function copyText(t){
+  try{ if (window.MolleNative && MolleNative.copyText){ MolleNative.copyText(t); return Promise.resolve(); } }catch{}
+  return navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject(new Error('Utklippstavle ikke tilgjengelig'));
+}
 function toTCX(r){
   const laps = r.segs.map((s,i) => {
     if (!s.start || s.elapsed <= 0) return '';
@@ -1013,7 +1046,7 @@ function toTCX(r){
       .map(p => `<Trackpoint><Time>${iso(p.t)}</Time>${p.a != null ? `<AltitudeMeters>${p.a.toFixed(1)}</AltitudeMeters>` : ''}<DistanceMeters>${p.d.toFixed(1)}</DistanceMeters>${p.h ? `<HeartRateBpm><Value>${p.h}</Value></HeartRateBpm>` : ''}</Trackpoint>`).join('');
     return `<Lap StartTime="${iso(s.start)}"><TotalTimeSeconds>${s.elapsed.toFixed(1)}</TotalTimeSeconds><DistanceMeters>${(s.dist*1000).toFixed(1)}</DistanceMeters><Calories>0</Calories>${s.hrT ? `<AverageHeartRateBpm><Value>${Math.round(s.hrSum/s.hrT)}</Value></AverageHeartRateBpm><MaximumHeartRateBpm><Value>${s.hrMax}</Value></MaximumHeartRateBpm>` : ''}<Intensity>${isRest(s.type) ? 'Resting' : 'Active'}</Intensity><TriggerMethod>Manual</TriggerMethod><Track>${pts}</Track><Notes>${s.label}</Notes></Lap>`;
   }).join('');
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"><Activities><Activity Sport="Running"><Id>${iso(r.start)}</Id>${laps}<Notes>Mølle: ${r.title}</Notes></Activity></Activities></TrainingCenterDatabase>`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"><Activities><Activity Sport="Running"><Id>${iso(r.start)}</Id>${laps}<Notes>${xmlEsc(stravaText(r).text)}</Notes></Activity></Activities></TrainingCenterDatabase>`;
 }
 const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++){ let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
 function crc32(u){ let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
@@ -1047,9 +1080,20 @@ async function exportRec(r, msgEl){
         : 'Lagret i Nedlastinger.';
     if (msgEl){
       msgEl.hidden = false;
+      const st = stravaText(r);
+      let copied = false;
+      try{ await copyText(st.text); copied = true; }catch{}
       msgEl.innerHTML = `<span>${where} Last opp .tcx-filen på Strava:</span>
         <span class="linkrow"><a class="btn pri" href="${STRAVA}" target="_blank" rel="noopener">Åpne Strava-opplasting</a><button class="btn" type="button" data-copy>Kopier lenke</button></span>
-        <span class="url">${STRAVA}</span>`;
+        <span class="url">${STRAVA}</span>
+        <span class="stxt"><span class="lbl">Tekst til Strava${copied ? ' · kopiert' : ''}</span><textarea readonly rows="6">${xmlEsc(st.text)}</textarea>
+        <span class="hint">${copied ? 'Teksten er kopiert. Lim den inn i beskrivelsen når du laster opp, eller etterpå under «Rediger aktivitet».' : 'Lim teksten inn i beskrivelsen når du laster opp.'}</span>
+        <button class="btn" type="button" data-copytext>Kopier tekst</button></span>`;
+      msgEl.querySelector('[data-copytext]').onclick = async ev => {
+        const b = ev.currentTarget, ta = msgEl.querySelector('.stxt textarea');
+        try{ await copyText(st.text); b.textContent = 'Kopiert'; }
+        catch{ ta.focus(); ta.select(); b.textContent = 'Merket – kopier selv'; }
+      };
       msgEl.querySelector('[data-copy]').onclick = async ev => {
         const b = ev.currentTarget;
         try{ await navigator.clipboard.writeText(STRAVA); b.textContent = 'Kopiert'; }

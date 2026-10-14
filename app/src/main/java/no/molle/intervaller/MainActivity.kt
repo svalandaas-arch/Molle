@@ -182,6 +182,11 @@ class MainActivity : Activity() {
 
         @JavascriptInterface fun appVersion(): String = versionName()
 
+        @JavascriptInterface fun copyText(text: String) = runOnUiThread {
+            val cm = getSystemService(android.content.ClipboardManager::class.java)
+            cm?.setPrimaryClip(android.content.ClipData.newPlainText("Mølle", text))
+        }
+
         /** Ser etter en nyere versjon på GitHub og sier fra til siden hvis det finnes en. */
         @JavascriptInterface fun checkUpdate() {
             Thread {
