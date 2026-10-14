@@ -11,18 +11,25 @@ object FileSaver {
     fun save(c: Context, name: String, content: String): String {
         val safe = name.replace(Regex("[^A-Za-z0-9._-]"), "_").ifEmpty { "molle.tcx" }
         val bytes = content.toByteArray(Charsets.UTF_8)
-        val first = try {
-            saveToDownloads(c, safe, bytes)
-            return "ok"
-        } catch (e: Exception) {
-            e.message ?: e.javaClass.simpleName
+        // Prøv vanlig navn først, så med tillegg (-2, -3 …) hvis navnet er opptatt i Nedlastinger
+        var first = ""
+        val base = safe.substringBeforeLast('.', safe)
+        val ext = if (safe.contains('.')) "." + safe.substringAfterLast('.') else ""
+        for (i in 1..6) {
+            val tryName = if (i == 1) safe else "$base-$i$ext"
+            try {
+                saveToDownloads(c, tryName, bytes)
+                return "ok"
+            } catch (e: Exception) {
+                if (first.isEmpty()) first = e.message ?: e.javaClass.simpleName
+            }
         }
         // Reserve: appens egen mappe, som alltid er skrivbar
         return try {
             val dir = c.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: c.filesDir
             dir.mkdirs()
             File(dir, safe).writeBytes(bytes)
-            "Nedlastinger var ikke tilgjengelig ($first). Filen ligger i Android/data/no.molle.intervaller/files/Download."
+            "Nedlastinger var ikke tilgjengelig. Filen ligger i Android/data/no.molle.intervaller/files/Download."
         } catch (e: Exception) {
             "$first / ${e.message ?: e.javaClass.simpleName}"
         }

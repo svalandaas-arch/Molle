@@ -1059,7 +1059,9 @@ function zip1(name, data){
 }
 async function exportRec(r, msgEl){
   const d = await dl; if (!d || !r) return;
-  const stamp = new Date(r.start).toISOString().slice(0,16).replace(/[-:]/g,'').replace('T','-');
+  const dt = new Date(r.start), z = n => String(n).padStart(2, '0');
+  // Lokal tid i navnet, med sekunder så to filer fra samme økt ikke kolliderer
+  const stamp = `${dt.getFullYear()}${z(dt.getMonth()+1)}${z(dt.getDate())}-${z(dt.getHours())}${z(dt.getMinutes())}-${z(new Date().getSeconds())}`;
   const name = `molle-${stamp}`;
   try{
     const res = await d.save({filename: name + '.tcx', data: new Blob([toTCX(r)], {type:'application/vnd.garmin.tcx+xml'})});
