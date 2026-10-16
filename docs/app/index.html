@@ -314,6 +314,11 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
     <input type="checkbox" id="carry" checked>
   </label>
 
+  <label class="toggle" for="fakeRoute">
+    <span>Fiktiv rute til Strava<small>Strava viser bare høydemeter når økta har en rute. Filen får derfor en rundløype ute i Norskehavet, langt fra land. Velg «Virtuell løpetur» som type på Strava.</small></span>
+    <input type="checkbox" id="fakeRoute">
+  </label>
+
   <div class="toggle chipset">
     <label for="spChipsIn">Fartsknapper under løping<small>Fart i km/t skilt med mellomrom, for eksempel «8 10 12 14 16,5». Trykk på en av dem under økta for å hoppe rett til den farten.</small></label>
     <input id="spChipsIn" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
@@ -456,6 +461,9 @@ chipsIn.addEventListener('change', () => {
   const v = chipsIn.value.split(/[\s;]+/).map(parseNum).filter(x => !isNaN(x) && x > 0 && x <= 30).map(x => Math.round(x*10)/10).slice(0, 8);
   store.set('molle.chips', v.length ? v : DEF_CHIPS); showChips();
 });
+const fakeEl = $('#fakeRoute');
+fakeEl.checked = store.get('molle.fakeRoute', true);
+fakeEl.onchange = () => store.set('molle.fakeRoute', fakeEl.checked);
 const carryEl = $('#carry');
 carryEl.checked = store.get('molle.carry', true);
 carryEl.onchange = () => store.set('molle.carry', carryEl.checked);
@@ -1030,11 +1038,20 @@ function copyText(t){
   try{ if (window.MolleNative && MolleNative.copyText){ MolleNative.copyText(t); return Promise.resolve(); } }catch{}
   return navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject(new Error('Utklippstavle ikke tilgjengelig'));
 }
+// Fiktiv rundløype på 1 km midt i Norskehavet, langt fra land og segmenter
+const ROUTE = {lat: 66.5, lon: 2.0, len: 1000};
+function routePos(d){
+  const R = ROUTE.len / (2 * Math.PI), a = (d % ROUTE.len) / ROUTE.len * 2 * Math.PI;
+  const lat = ROUTE.lat + (R * Math.cos(a) - R) / 111320;
+  const lon = ROUTE.lon + (R * Math.sin(a)) / (111320 * Math.cos(ROUTE.lat * Math.PI / 180));
+  return `<Position><LatitudeDegrees>${lat.toFixed(7)}</LatitudeDegrees><LongitudeDegrees>${lon.toFixed(7)}</LongitudeDegrees></Position>`;
+}
 function toTCX(r){
+  const fake = store.get('molle.fakeRoute', true);
   const laps = r.segs.map((s,i) => {
     if (!s.start || s.elapsed <= 0) return '';
     const pts = r.samples.filter(p => p.i === i)
-      .map(p => `<Trackpoint><Time>${iso(p.t)}</Time>${p.a != null ? `<AltitudeMeters>${p.a.toFixed(1)}</AltitudeMeters>` : ''}<DistanceMeters>${p.d.toFixed(1)}</DistanceMeters>${p.h ? `<HeartRateBpm><Value>${p.h}</Value></HeartRateBpm>` : ''}</Trackpoint>`).join('');
+      .map(p => `<Trackpoint><Time>${iso(p.t)}</Time>${fake ? routePos(p.d) : ''}${p.a != null ? `<AltitudeMeters>${(p.a + (fake ? 10 : 0)).toFixed(1)}</AltitudeMeters>` : (fake ? '<AltitudeMeters>10.0</AltitudeMeters>' : '')}<DistanceMeters>${p.d.toFixed(1)}</DistanceMeters>${p.h ? `<HeartRateBpm><Value>${p.h}</Value></HeartRateBpm>` : ''}</Trackpoint>`).join('');
     return `<Lap StartTime="${iso(s.start)}"><TotalTimeSeconds>${s.elapsed.toFixed(1)}</TotalTimeSeconds><DistanceMeters>${(s.dist*1000).toFixed(1)}</DistanceMeters><Calories>0</Calories>${s.hrT ? `<AverageHeartRateBpm><Value>${Math.round(s.hrSum/s.hrT)}</Value></AverageHeartRateBpm><MaximumHeartRateBpm><Value>${s.hrMax}</Value></MaximumHeartRateBpm>` : ''}<Intensity>${isRest(s.type) ? 'Resting' : 'Active'}</Intensity><TriggerMethod>Manual</TriggerMethod><Track>${pts}</Track><Notes>${s.label}</Notes></Lap>`;
   }).join('');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"><Activities><Activity Sport="Running"><Id>${iso(r.start)}</Id>${laps}<Notes>${xmlEsc(stravaText(r).text)}</Notes></Activity></Activities></TrainingCenterDatabase>`;
@@ -1081,7 +1098,7 @@ async function exportRec(r, msgEl){
         <button class="btn" type="button" data-copyf="title">Kopier overskrift</button>
         <span class="lbl">Tekst${copied ? ' · kopiert' : ''}</span><textarea readonly rows="3" data-f="text">${xmlEsc(st.text)}</textarea>
         <button class="btn" type="button" data-copyf="text">Kopier tekst</button>
-        <span class="hint">${copied ? 'Teksten er kopiert. ' : ''}Lim overskrift og tekst inn når du laster opp på Strava, eller etterpå under «Rediger aktivitet».</span></span>`;
+        <span class="hint">${copied ? 'Teksten er kopiert. ' : ''}Lim overskrift og tekst inn når du laster opp på Strava, eller etterpå under «Rediger aktivitet».${store.get('molle.fakeRoute', true) ? ' Velg typen «Virtuell løpetur», så regnes ikke den fiktive ruten som løping ute.' : ''}</span></span>`;
       msgEl.querySelectorAll('[data-copyf]').forEach(btn => btn.onclick = async ev => {
         const b = ev.currentTarget, k = b.dataset.copyf, el = msgEl.querySelector(`[data-f="${k}"]`);
         try{ await copyText(st[k]); msgEl.querySelectorAll('[data-copyf]').forEach(x => x.textContent = x.dataset.copyf === 'title' ? 'Kopier overskrift' : 'Kopier tekst'); b.textContent = 'Kopiert'; }
