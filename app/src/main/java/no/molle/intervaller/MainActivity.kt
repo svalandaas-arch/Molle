@@ -180,6 +180,10 @@ class MainActivity : Activity() {
 
         @JavascriptInterface fun saveFile(name: String, content: String): String = FileSaver.save(this@MainActivity, name, content)
 
+        @JavascriptInterface fun saveFileB64(name: String, b64: String): String = try {
+            FileSaver.saveBytes(this@MainActivity, name, android.util.Base64.decode(b64, android.util.Base64.DEFAULT))
+        } catch (e: Exception) { "Fikk ikke lagret filen: ${e.message ?: "ukjent feil"}" }
+
         @JavascriptInterface fun appVersion(): String = versionName()
 
         @JavascriptInterface fun copyText(text: String) = runOnUiThread {

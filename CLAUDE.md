@@ -4,7 +4,7 @@ Eier: Sigurd (GitHub: svalandaas-arch). Snakk norsk (bokmål), enkelt og uten te
 
 ## Hva appen er
 
-Intervallapp for tredemølla. Man setter opp økta på forhånd (oppvarming, steg med drag og pauser, serier med seriepause, nedjogg, fart og stigning for hver del) og ser distanse, tid, fart, stigning og puls mens man løper. Distansen regnes ut fra farten man har stilt inn. Økta kan lagres som .tcx og lastes opp til Strava/Garmin.
+Intervallapp for tredemølla. Man setter opp økta på forhånd (oppvarming, steg med drag og pauser, serier med seriepause, nedjogg, fart og stigning for hver del) og ser distanse, tid, fart, stigning og puls mens man løper. Distansen regnes ut fra farten man har stilt inn. Økta kan lagres som .fit (tidligere .tcx) og lastes opp til Strava/Garmin. Med «Fiktiv rute» får filen en rundløype på Juvatn i Åseral og sub_sport virtual_activity, så Strava viser høydemeter og merker økta som virtuell løpetur.
 
 ## Hvor ting ligger
 

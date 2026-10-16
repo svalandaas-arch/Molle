@@ -332,7 +332,7 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
   </label>
 
   <label class="toggle" for="fakeRoute">
-    <span>Fiktiv rute til Strava<small>Strava viser bare høydemeter når økta har en rute. Filen får derfor en rundløype på 400 m ute på Juvatn i Åseral. Velg «Virtuell løpetur» som type på Strava.</small></span>
+    <span>Fiktiv rute til Strava<small>Strava viser bare høydemeter når økta har en rute. Filen får derfor en rundløype på 400 m ute på Juvatn i Åseral, og økta merkes som virtuell løpetur.</small></span>
     <input type="checkbox" id="fakeRoute">
   </label>
 
@@ -1004,7 +1004,7 @@ function renderDone(){
       <tbody>${rows}</tbody></table></div>
     <div class="export" id="exportBox" hidden>
       <button class="btn exp" id="expBtn">Lagre fil til Garmin / Strava</button>
-      <p class="sub expmsg" id="expMsg">Lagrer en .tcx-fil i Nedlastinger. Last den opp på strava.com/upload eller garmin.com (Importer data).</p>
+      <p class="sub expmsg" id="expMsg">Lagrer en .fit-fil i Nedlastinger. Last den opp på strava.com/upload eller garmin.com (Importer data).</p>
     </div>
     <button class="big" id="againBtn">Ny økt</button>`;
   $('#againBtn').onclick = () => { show('setup'); renderSetupExtras(); };
@@ -1018,8 +1018,12 @@ let lastRec = null;
 const STRAVA = 'https://www.strava.com/upload/select';
 const dl = Promise.resolve({ save: async ({filename, data}) => {
   if (window.MolleNative){
-    const text = typeof data === 'string' ? data : await data.text();
-    const r = MolleNative.saveFile(filename, text);
+    let r;
+    if (typeof data !== 'string' && MolleNative.saveFileB64){
+      const buf = new Uint8Array(await data.arrayBuffer());
+      let bin = ''; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+      r = MolleNative.saveFileB64(filename, btoa(bin));
+    } else r = MolleNative.saveFile(filename, typeof data === 'string' ? data : await data.text());
     if (r !== 'ok' && !r.startsWith('Nedlastinger')) throw new Error(r);
     return {status:'saved', note: r === 'ok' ? '' : r};
   }
@@ -1083,6 +1087,111 @@ function toTCX(r){
   }).join('');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"><Activities><Activity Sport="Running"><Id>${iso(r.start)}</Id>${laps}<Notes>${xmlEsc(stravaText(r).text)}</Notes></Activity></Activities></TrainingCenterDatabase>`;
 }
+/* ---------- FIT-fil (formatet klokkene bruker) ---------- */
+// Strava leser sportstypen herfra: med fiktiv rute blir økta «Virtuell løpetur», ellers tredemølle.
+const FIT_EPOCH = 631065600; // 1989-12-31T00:00:00Z i Unix-sekunder
+const FIT_CRC = [0x0000,0xCC01,0xD801,0x1400,0xF001,0x3C00,0x2800,0xE401,0xA001,0x6C00,0x7800,0xB401,0x5000,0x9C01,0x8801,0x4400];
+function fitCrc(bytes, crc = 0){
+  for (let i = 0; i < bytes.length; i++){
+    const b = bytes[i];
+    let t = FIT_CRC[crc & 0xF]; crc = (crc >> 4) & 0x0FFF; crc = crc ^ t ^ FIT_CRC[b & 0xF];
+    t = FIT_CRC[crc & 0xF]; crc = (crc >> 4) & 0x0FFF; crc = crc ^ t ^ FIT_CRC[(b >> 4) & 0xF];
+  }
+  return crc;
+}
+function toFIT(r){
+  const fake = store.get('molle.fakeRoute', true);
+  const T = ms => Math.max(0, Math.round(ms / 1000) - FIT_EPOCH);
+  const SEMI = 2147483648 / 180;
+  const out = [];
+  const u8 = v => out.push(v & 0xFF);
+  const u16 = v => { u8(v); u8(v >> 8); };
+  const u32 = v => { v = v >>> 0; u8(v); u8(v >>> 8); u8(v >>> 16); u8(v >>> 24); };
+  const SIZE = {0x00:1, 0x02:1, 0x84:2, 0x85:4, 0x86:4, 0x8C:4};
+  const defs = {};
+  // fields: [feltnummer, basistype]
+  function define(local, global, fields){
+    defs[local] = fields;
+    u8(0x40 | local); u8(0); u8(0); u16(global); u8(fields.length);
+    fields.forEach(([num, type]) => { u8(num); u8(SIZE[type]); u8(type); });
+  }
+  function write(local, values){
+    u8(local);
+    defs[local].forEach(([, type], i) => {
+      const v = values[i];
+      if (SIZE[type] === 1) u8(v == null ? 0xFF : v);
+      else if (SIZE[type] === 2) u16(v == null ? 0xFFFF : v);
+      else if (type === 0x85) u32(v == null ? 0x7FFFFFFF : v);
+      else u32(v == null ? 0xFFFFFFFF : v);
+    });
+  }
+  const segs = r.segs.filter(s => s.start && s.elapsed > 0);
+  const samples = r.samples || [];
+  const t0 = segs.length ? segs[0].start : r.start;
+  const last = segs[segs.length - 1];
+  const tEnd = last ? last.start + last.elapsed * 1000 : t0;
+  const totalSec = segs.reduce((a, s) => a + s.elapsed, 0);
+  const totalDist = segs.reduce((a, s) => a + s.dist, 0) * 1000;
+  const climb = segs.reduce((a, s) => a + (s.climb || 0), 0);
+  const hrT = segs.reduce((a, s) => a + (s.hrT || 0), 0);
+  const hrAvg = hrT ? Math.round(segs.reduce((a, s) => a + (s.hrSum || 0), 0) / hrT) : null;
+  const hrMax = hrT ? Math.max(...segs.map(s => s.hrMax || 0)) : null;
+  const subSport = fake ? 58 : 1; // 58 = virtuell aktivitet, 1 = tredemølle
+
+  // file_id
+  define(0, 0, [[0,0x00],[1,0x84],[2,0x84],[3,0x8C],[4,0x86]]);
+  write(0, [4, 255, 1, (t0 / 1000) & 0x7FFFFFFF || 1, T(t0)]);
+  // event: start
+  define(1, 21, [[253,0x86],[0,0x00],[1,0x00]]);
+  write(1, [T(t0), 0, 0]);
+  // record
+  define(2, 20, [[253,0x86],[0,0x85],[1,0x85],[2,0x84],[3,0x02],[5,0x86],[6,0x84]]);
+  let prev = null;
+  samples.forEach(p => {
+    let lat = null, lon = null;
+    if (fake){
+      const R = ROUTE.len / (2 * Math.PI), a = (p.d % ROUTE.len) / ROUTE.len * 2 * Math.PI;
+      lat = Math.round((ROUTE.lat + (R * Math.cos(a)) / 111320) * SEMI);
+      lon = Math.round((ROUTE.lon + (R * Math.sin(a)) / (111320 * Math.cos(ROUTE.lat * Math.PI / 180))) * SEMI);
+    }
+    const alt = (p.a != null ? p.a : 0) + (fake ? 10 : 0);
+    let speed = null;
+    if (prev && p.t > prev.t) speed = Math.round(Math.max(0, (p.d - prev.d) / ((p.t - prev.t) / 1000)) * 1000);
+    else { const s = r.segs[p.i]; if (s && s.elapsed) speed = Math.round(s.dist * 1000 / s.elapsed * 1000); }
+    write(2, [T(p.t), lat, lon, Math.round((alt + 500) * 5), p.h || null, Math.round(p.d * 100), speed]);
+    prev = p;
+  });
+  // event: stopp
+  write(1, [T(tEnd), 0, 4]);
+  // lap per del av økta
+  define(3, 19, [[253,0x86],[0,0x00],[1,0x00],[2,0x86],[7,0x86],[8,0x86],[9,0x86],[15,0x02],[16,0x02],[21,0x84],[23,0x00],[24,0x00],[25,0x00],[39,0x00]]);
+  const INT = {work:0, rest:1, srest:1, warm:2, cool:3, free:0};
+  segs.forEach(s => {
+    const end = s.start + s.elapsed * 1000;
+    write(3, [T(end), 9, 1, T(s.start), Math.round(s.elapsed * 1000), Math.round(s.elapsed * 1000), Math.round(s.dist * 100000),
+      s.hrT ? Math.round(s.hrSum / s.hrT) : null, s.hrT ? s.hrMax : null, Math.round(s.climb || 0), INT[s.type] ?? 0, 0, 1, subSport]);
+  });
+  // session
+  define(4, 18, [[253,0x86],[0,0x00],[1,0x00],[2,0x86],[5,0x00],[6,0x00],[7,0x86],[8,0x86],[9,0x86],[16,0x02],[17,0x02],[22,0x84],[25,0x84],[26,0x84],[28,0x00]]);
+  write(4, [T(tEnd), 8, 1, T(t0), 1, subSport, Math.round(totalSec * 1000), Math.round(totalSec * 1000), Math.round(totalDist * 100),
+    hrAvg, hrMax, Math.round(climb), 0, segs.length, 0]);
+  // activity
+  define(5, 34, [[253,0x86],[0,0x86],[1,0x84],[2,0x00],[3,0x00],[4,0x00],[5,0x86]]);
+  const tzOff = -new Date(tEnd).getTimezoneOffset() * 60;
+  write(5, [T(tEnd), Math.round(totalSec * 1000), 1, 0, 26, 1, T(tEnd) + tzOff]);
+
+  const data = Uint8Array.from(out);
+  const head = new Uint8Array(14);
+  const hv = new DataView(head.buffer);
+  hv.setUint8(0, 14); hv.setUint8(1, 0x20); hv.setUint16(2, 2132, true); hv.setUint32(4, data.length, true);
+  head.set([0x2E, 0x46, 0x49, 0x54], 8); // ".FIT"
+  hv.setUint16(12, fitCrc(head.subarray(0, 12)), true);
+  const crc = fitCrc(data, fitCrc(head));
+  const file = new Uint8Array(14 + data.length + 2);
+  file.set(head, 0); file.set(data, 14);
+  file[file.length - 2] = crc & 0xFF; file[file.length - 1] = (crc >> 8) & 0xFF;
+  return file;
+}
 const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++){ let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
 function crc32(u){ let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
 function zip1(name, data){
@@ -1105,7 +1214,7 @@ async function exportRec(r, msgEl){
   const stamp = `${dt.getFullYear()}${z(dt.getMonth()+1)}${z(dt.getDate())}-${z(dt.getHours())}${z(dt.getMinutes())}-${z(new Date().getSeconds())}`;
   const name = `molle-${stamp}`;
   try{
-    const res = await d.save({filename: name + '.tcx', data: new Blob([toTCX(r)], {type:'application/vnd.garmin.tcx+xml'})});
+    const res = await d.save({filename: name + '.fit', data: new Blob([toFIT(r)], {type:'application/octet-stream'})});
     msgEl = msgEl || $('#histMsg');
     if (res && res.status === 'cancelled') return;
     const where = res && res.status === 'shared'
@@ -1118,14 +1227,14 @@ async function exportRec(r, msgEl){
       const st = stravaText(r);
       let copied = false;
       try{ await copyText(st.text); copied = true; }catch{}
-      msgEl.innerHTML = `<span>${where} Last opp .tcx-filen på Strava:</span>
+      msgEl.innerHTML = `<span>${where} Last opp .fit-filen på Strava:</span>
         <span class="linkrow"><a class="btn pri" href="${STRAVA}" target="_blank" rel="noopener">Åpne Strava-opplasting</a><button class="btn" type="button" data-copy>Kopier lenke</button></span>
         <span class="url">${STRAVA}</span>
         <span class="stxt"><span class="lbl">Overskrift</span><input readonly value="${xmlEsc(st.title)}" data-f="title">
         <button class="btn" type="button" data-copyf="title">Kopier overskrift</button>
         <span class="lbl">Tekst${copied ? ' · kopiert' : ''}</span><textarea readonly rows="3" data-f="text">${xmlEsc(st.text)}</textarea>
         <button class="btn" type="button" data-copyf="text">Kopier tekst</button>
-        <span class="hint">${copied ? 'Teksten er kopiert. ' : ''}Lim overskrift og tekst inn når du laster opp på Strava, eller etterpå under «Rediger aktivitet».${store.get('molle.fakeRoute', true) ? ' Velg typen «Virtuell løpetur», så regnes ikke den fiktive ruten som løping ute.' : ''}</span></span>`;
+        <span class="hint">${copied ? 'Teksten er kopiert. ' : ''}Lim overskrift og tekst inn når du laster opp på Strava, eller etterpå under «Rediger aktivitet».${store.get('molle.fakeRoute', true) ? ' Filen er merket som virtuell løpetur.' : ' Filen er merket som tredemølle.'}</span></span>`;
       msgEl.querySelectorAll('[data-copyf]').forEach(btn => btn.onclick = async ev => {
         const b = ev.currentTarget, k = b.dataset.copyf, el = msgEl.querySelector(`[data-f="${k}"]`);
         try{ await copyText(st[k]); msgEl.querySelectorAll('[data-copyf]').forEach(x => x.textContent = x.dataset.copyf === 'title' ? 'Kopier overskrift' : 'Kopier tekst'); b.textContent = 'Kopiert'; }

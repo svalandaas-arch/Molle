@@ -6,11 +6,12 @@ import android.os.Environment
 import android.provider.MediaStore
 import java.io.File
 
-/** Lagrer .tcx-filen i Nedlastinger, der Strava- og Garmin-opplasting finner den. */
+/** Lagrer treningsfilen (.fit) i Nedlastinger, der Strava- og Garmin-opplasting finner den. */
 object FileSaver {
-    fun save(c: Context, name: String, content: String): String {
-        val safe = name.replace(Regex("[^A-Za-z0-9._-]"), "_").ifEmpty { "molle.tcx" }
-        val bytes = content.toByteArray(Charsets.UTF_8)
+    fun save(c: Context, name: String, content: String): String = saveBytes(c, name, content.toByteArray(Charsets.UTF_8))
+
+    fun saveBytes(c: Context, name: String, bytes: ByteArray): String {
+        val safe = name.replace(Regex("[^A-Za-z0-9._-]"), "_").ifEmpty { "molle.fit" }
         // Prøv vanlig navn først, så med tillegg (-2, -3 …) hvis navnet er opptatt i Nedlastinger
         var first = ""
         val base = safe.substringBeforeLast('.', safe)
