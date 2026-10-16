@@ -315,7 +315,7 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
   </label>
 
   <label class="toggle" for="fakeRoute">
-    <span>Fiktiv rute til Strava<small>Strava viser bare høydemeter når økta har en rute. Filen får derfor en rundløype ute i Norskehavet, langt fra land. Velg «Virtuell løpetur» som type på Strava.</small></span>
+    <span>Fiktiv rute til Strava<small>Strava viser bare høydemeter når økta har en rute. Filen får derfor en rundløype på 400 m ute på Juvatn i Åseral. Velg «Virtuell løpetur» som type på Strava.</small></span>
     <input type="checkbox" id="fakeRoute">
   </label>
 
@@ -1038,11 +1038,11 @@ function copyText(t){
   try{ if (window.MolleNative && MolleNative.copyText){ MolleNative.copyText(t); return Promise.resolve(); } }catch{}
   return navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject(new Error('Utklippstavle ikke tilgjengelig'));
 }
-// Fiktiv rundløype på 1 km midt i Norskehavet, langt fra land og segmenter
-const ROUTE = {lat: 66.5, lon: 2.0, len: 1000};
+// Fiktiv rundløype på 400 m ute på Juvatn i Åseral, sentrert midt på vannet
+const ROUTE = {lat: 58.82559, lon: 7.50886, len: 400};
 function routePos(d){
   const R = ROUTE.len / (2 * Math.PI), a = (d % ROUTE.len) / ROUTE.len * 2 * Math.PI;
-  const lat = ROUTE.lat + (R * Math.cos(a) - R) / 111320;
+  const lat = ROUTE.lat + (R * Math.cos(a)) / 111320;
   const lon = ROUTE.lon + (R * Math.sin(a)) / (111320 * Math.cos(ROUTE.lat * Math.PI / 180));
   return `<Position><LatitudeDegrees>${lat.toFixed(7)}</LatitudeDegrees><LongitudeDegrees>${lon.toFixed(7)}</LongitudeDegrees></Position>`;
 }
