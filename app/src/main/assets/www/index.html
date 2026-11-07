@@ -1889,10 +1889,12 @@ function lacChart(t, r, prevT){
   } else g += line(pts, p => Y(p.lac), 'lacl');
   g += pts.map(p => `<circle cx="${X(p.speed)}" cy="${Y(p.lac)}" r="4.5" class="lacd"/>`).join('');
   // terskellinjer
+  const close = r.v1 != null && r.v2 != null && X(r.v2) - X(r.v1) < 70;
   [[r.v1, r.l1, 'LT1', 't1'], [r.v2, r.l2, 'LT2', 't2']].forEach(([v, l, n, c]) => {
     if (v == null) return;
+    const anchor = close ? (c === 't1' ? 'end' : 'start') : 'middle', dx = close ? (c === 't1' ? -4 : 4) : 0;
     g += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H - B}" class="tl ${c}"/><circle cx="${X(v)}" cy="${Y(l)}" r="5.5" class="td ${c}"/>
-      <text x="${X(v)}" y="${T - 7}" class="tt ${c}" text-anchor="middle">${n} ${dec(v)}</text>`;
+      <text x="${X(v) + dx}" y="${T - 7}" class="tt ${c}" text-anchor="${anchor}">${n} ${dec(v)}</text>`;
   });
   return `<svg viewBox="0 0 ${W} ${H}" class="lacsvg" role="img" aria-label="Laktatkurve med LT1 og LT2">${g}
     <text x="${W - Rm}" y="${H - 4}" class="ax" text-anchor="end">fart, km/t</text><text x="4" y="${T - 7}" class="ax">mmol</text></svg>
