@@ -209,6 +209,8 @@ body.locked{overflow:hidden}
 .izone div{display:grid;grid-template-columns:44px 1fr auto;gap:10px;background:var(--panel);padding:8px 14px;font-variant-numeric:tabular-nums}
 .izone b{font-family:var(--display);font-size:18px;color:var(--work)}
 .izone .hint{background:var(--panel);padding:6px 14px 10px;margin:0;font-size:13px}
+.lacempty{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;text-align:center;min-height:170px;padding:16px;border:1px dashed var(--line);border-radius:10px;margin:4px}
+.lacempty span{color:var(--muted);font-size:14px;max-width:34ch}
 .lachead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .seg2{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
 .seg2 button{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted)}
@@ -1687,8 +1689,9 @@ $('#lacBox').addEventListener('change', e => { if (e.target.id === 'lacVal'){ co
 function lacFinish(){
   const stages = S.lac.stages.map((st, i) => {
     const w = S.segs.find(x => x.type === 'work' && x.lacStage === i);
-    if (!w || w.elapsed < 30) return null;
-    return {speed: Math.round((w.elapsed ? w.dist / w.elapsed * 3600 : st.speed) * 10) / 10, lac: st.lac, hr: st.hr != null ? st.hr : lacStageHr(i)};
+    // Trinn som er hoppet over tas med hvis laktat er lagt inn
+    if (!w || (w.elapsed < 30 && st.lac == null)) return null;
+    return {speed: Math.round((w.elapsed >= 30 ? w.dist / w.elapsed * 3600 : st.speed) * 10) / 10, lac: st.lac, hr: st.hr != null ? st.hr : lacStageHr(i)};
   }).filter(Boolean);
   if (!stages.length) return;
   const test = {id: Date.now(), date: (S.segs.find(x => x.start) || {}).start || Date.now(), cfg: S.lac.cfg, stages, hfmax: S.lac.cfg.hfmax || store.get('molle.hfmax', 0)};
@@ -1768,7 +1771,7 @@ function lacCalc(t, method){
 function lacChart(t, r, prevT){
   const W = 340, H = 240, L = 30, Rm = 36, T = 22, B = 34;
   const pts = t.stages.filter(x => x.lac != null);
-  if (!pts.length) return '<p class="hint">Legg inn laktat for å se kurven.</p>';
+  if (pts.length < 2) return `<div class="lacempty"><b>Grafen mangler laktatverdier</b><span>${pts.length ? 'Det trengs minst to målinger.' : 'Ingen laktat er lagt inn for denne testen.'} Skriv verdiene inn i Laktat-kolonnen i tabellen under, så kommer kurven, LT1 og LT2 med en gang.</span></div>`;
   const all = pts.concat(prevT ? prevT.stages.filter(x => x.lac != null) : []);
   const xmin = Math.floor(Math.min(...all.map(x => x.speed)) - 0.5), xmax = Math.ceil(Math.max(...all.map(x => x.speed)) + 0.5);
   const ymax = Math.max(5, Math.ceil(Math.max(...all.map(x => x.lac)) + 0.5));
