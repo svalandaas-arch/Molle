@@ -160,6 +160,56 @@ body.locked{overflow:hidden}
 .stxt input{width:100%;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:15px}
 .stxt textarea{width:100%;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit;font-size:14px;line-height:1.4;resize:vertical}
 .stxt .btn{align-self:flex-start}
+.laccard{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.laccard b{display:block;font-family:var(--display);font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+.laccard small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.laccard .arrow{font-family:var(--display);font-size:28px;color:var(--work)}
+.lacmain{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:16px 120px;display:flex;flex-direction:column;gap:20px}
+.lacmain .back{align-self:flex-start;color:var(--muted);font-weight:600;font-size:15px;padding:6px 0}
+.lacprev{display:flex;flex-direction:column;gap:1px;border-radius:10px;overflow:hidden}
+.lacprev div{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:baseline;background:var(--panel);padding:10px 14px;font-variant-numeric:tabular-nums}
+.lacprev b{font-family:var(--display);font-size:20px;font-weight:600}
+.lacprev .pace{color:var(--muted);font-size:14px;min-width:70px;text-align:right}
+.lachist{display:flex;flex-direction:column;gap:1px;border-radius:10px;overflow:hidden}
+.lachrow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);padding:12px 14px;text-align:left;width:100%}
+.lachrow .d{display:block;color:var(--muted);font-size:14px}
+.lachrow .k{font-family:var(--display);font-size:22px;font-weight:600;text-align:right;white-space:nowrap}
+.lachrow .k small{display:block;font-family:var(--body);font-size:12px;color:var(--muted);font-weight:500}
+#run.lacmode .spchips,#run.lacmode .incline,#run.lacmode .speed{display:none}
+#run.lacmode .clock .num{font-size:clamp(64px,18vw,110px)}
+.lacbox{display:flex;flex-direction:column;gap:10px;background:var(--panel2);border:2px solid var(--rest);border-radius:14px;padding:12px}
+.lacbox .lbl{color:var(--fg)}
+.lacin{display:grid;grid-template-columns:56px 1fr auto 56px;gap:6px;align-items:center}
+.lacin button{height:52px;border-radius:10px;background:var(--panel);font-size:28px}
+.lacin input{width:100%;height:52px;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--fg);font-family:var(--display);font-size:32px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+.lacin .u{color:var(--muted)}
+.lacbox .btn.pri{height:48px;font-size:16px}
+.lacbtns{display:flex;gap:8px;flex-wrap:wrap}
+.lacbtns .btn{flex:1 1 140px;height:48px}
+.lacrep{display:flex;flex-direction:column;gap:16px}
+#done .lacrep{padding-bottom:20px;border-bottom:1px solid var(--line)}
+.lacrep .trio .hint{font-size:13px;margin:0}
+.lacchart{background:var(--panel);border-radius:12px;padding:10px 6px 8px}
+.lacsvg{width:100%;height:auto;display:block}
+.lacsvg .gr{stroke:var(--line);stroke-width:1}
+.lacsvg .ref{stroke:var(--work);stroke-width:1;stroke-dasharray:4 4;opacity:.6}
+.lacsvg .ax{fill:var(--muted);font-size:11px;font-family:var(--body)}
+.lacsvg .ax.hr{fill:var(--danger);opacity:.8}
+.lacsvg .lacl{fill:none;stroke:var(--work);stroke-width:2.5}
+.lacsvg .lacd{fill:var(--work);stroke:var(--bg);stroke-width:2}
+.lacsvg .hrl{fill:none;stroke:var(--danger);stroke-width:1.5;opacity:.8}
+.lacsvg .hrd{fill:var(--danger)}
+.lacsvg .prev{fill:none;stroke:var(--muted);stroke-width:2;stroke-dasharray:5 4}
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:6px 10px 0;color:var(--muted);font-size:13px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.lg-l{background:var(--work)}.lg-h{background:var(--danger)}.lg-p{background:var(--muted)}
+.lacedit{width:64px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--fg);font-family:var(--display);font-size:18px;text-align:right;padding:4px 6px}
+.izone{display:flex;flex-direction:column;gap:1px;border-radius:10px;overflow:hidden}
+.izone .lbl{background:var(--panel);padding:10px 14px 4px}
+.izone div{display:grid;grid-template-columns:44px 1fr auto;gap:10px;background:var(--panel);padding:8px 14px;font-variant-numeric:tabular-nums}
+.izone b{font-family:var(--display);font-size:18px;color:var(--work)}
+.izone .hint{background:var(--panel);padding:6px 14px 10px;margin:0;font-size:13px}
+.btn.arm{background:var(--danger);border-color:var(--danger);color:#fff}
 .stdrow{display:flex;flex-wrap:wrap;gap:8px}
 .stdrow .btn{flex:1 1 180px;height:48px}
 .stdrow .btn:disabled{opacity:.6;cursor:default}
@@ -243,6 +293,8 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
     <h1>Mølle<span>intervaller</span></h1>
     <p class="sub">Still inn økta, start, og juster farten underveis så den stemmer med mølla. Distansen regnes ut fra fart og tid.</p>
   </header>
+
+  <button type="button" class="laccard" id="lacOpenBtn"><span><b>Laktatprofil</b><small>Trinnvis test etter Olympiatoppens protokoll</small></span><span class="arrow" aria-hidden="true">›</span></button>
 
   <div id="liveBar" class="livebar" hidden>
     <div class="lb-t"><span class="lbl">Økta pågår</span><b id="liveTxt"></b></div>
@@ -350,6 +402,7 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
   <div class="bar"><i id="segBar"></i></div>
   <div class="clock"><div class="num" id="remain">0:00</div><div class="lbl" id="remainLbl">igjen av delen</div></div>
   <div class="upnext" id="upNext" hidden role="status" aria-live="polite"></div>
+  <div class="lacbox" id="lacBox" hidden></div>
 
   <div class="speed">
     <button data-sp="-0.5">−0,5</button>
@@ -386,6 +439,36 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
 
 <!-- OPPSUMMERING -->
 <main id="done" hidden></main>
+
+<!-- LAKTATPROFIL -->
+<main id="lactate" class="lacmain" hidden>
+  <button type="button" class="back" id="lacBack">‹ Tilbake</button>
+  <header>
+    <h1>Laktat<span>profil</span></h1>
+    <p class="sub">Etter Olympiatoppens protokoll: 10 min kontrollert oppvarming, så 4–5 trinn på 5 minutter. Farten øker med 0,9–1,0 km/t per trinn, og laktat måles i en pause på 30 sekunder mellom trinnene. Puls registreres for hvert trinn.</p>
+  </header>
+  <section class="group">
+    <div class="ghead"><span class="dot" style="background:var(--work)"></span><h2>Oppsett</h2></div>
+    <div class="rows" id="lacRows"></div>
+    <p class="hint">Olympiatoppen oppgir ikke startfart eller stigning for løping. Velg en startfart som kjennes rolig, slik at første trinn gir lav laktat. «Stopp ved laktat over» spør om du vil avslutte når grensen er passert. Sett den til «Av» for å løpe alle trinnene.</p>
+  </section>
+  <section class="group">
+    <div class="lbl" style="margin-bottom:8px">Trinnene</div>
+    <div id="lacPrev" class="lacprev"></div>
+  </section>
+  <section class="group" id="lacHistWrap" hidden>
+    <div class="lbl" style="margin-bottom:8px">Tidligere tester</div>
+    <div id="lacHist" class="lachist"></div>
+  </section>
+  <div class="startbar"><div class="in">
+    <button class="big" id="lacStartBtn"><span>Start laktatprofil</span> <small id="lacEst"></small></button>
+  </div></div>
+</main>
+
+<main id="lacRes" class="lacmain" hidden>
+  <button type="button" class="back" id="lacResBack">‹ Laktatprofil</button>
+  <section class="lacrep" id="lacResBody"></section>
+</main>
 
 <script>
 (() => {
@@ -806,6 +889,7 @@ function tick(){
     seg.elapsed += st; seg.dist += seg.speed*st/3600; S.total += st; dt -= st;
     seg.climb = (seg.climb||0) + seg.speed*st/3.6*(seg.inc||0)/100; seg.incT = (seg.incT||0) + (seg.inc||0)*st;
     const h = hrFresh(); if (h){ seg.hrSum = (seg.hrSum||0) + h*st; seg.hrT = (seg.hrT||0) + st; seg.hrMax = Math.max(seg.hrMax||0, h); }
+    if (h && seg.dur - seg.elapsed <= 60){ seg.hrLs = (seg.hrLs||0) + h*st; seg.hrLt = (seg.hrLt||0) + st; }
     if (seg.free){ seg.dur = seg.elapsed; continue; }
     const left = seg.dur - seg.elapsed;
     const whole = Math.ceil(left - 1e-6);
@@ -842,6 +926,7 @@ function nextSeg(t){
 }
 let upPulse = false;
 function upNextUI(){
+  if (S && S.lac){ $('#upNext').hidden = true; return; }
   const el = $('#upNext'), u = S && S.upNext;
   const nw = u && S.segs[u.to];
   if (!u || !nw || S.idx > u.to || S.segs[S.idx].type === 'work'){ el.hidden = true; return; }
@@ -899,6 +984,7 @@ function render(){
   $('#remain').textContent = segClock(seg);
   $('#remainLbl').textContent = seg.free ? 'tid løpt' : 'igjen av delen';
   upNextUI();
+  lacUI();
   $('#skipBtn').disabled = !!(seg.free && S.idx === S.segs.length - 1);
   liveText();
   $('#speed').textContent = dec(seg.speed);
@@ -951,6 +1037,7 @@ function finish(){
   }
   store.del('molle.active');
   renderDone();
+  if (S.lac) lacFinish();
   S = null;
   show('done');
 }
@@ -1015,7 +1102,7 @@ const dl = Promise.resolve({ save: async ({filename, data}) => {
 function toRecord(S){
   const segs = S.segs.map(s => ({type:s.type, label:s.label, start:s.start||0, elapsed:s.elapsed, dist:s.dist, climb:s.climb||0, incT:s.incT||0, hrSum:s.hrSum||0, hrT:s.hrT||0, hrMax:s.hrMax||0}));
   const first = segs.find(s => s.start);
-  return {title: S.title, start: first ? first.start : Date.now(), segs, samples: S.samples || []};
+  return {title: S.title, start: first ? first.start : Date.now(), segs, samples: S.samples || [], lac: S.lac ? S.lac.stages : undefined};
 }
 const iso = t => new Date(t).toISOString().replace(/\.\d{3}Z$/, 'Z');
 const xmlEsc = t => String(t).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
@@ -1032,6 +1119,7 @@ function stravaText(r){
   if (rests.length) lines.push('Pause ' + dur(rests[0]));
   const srest = common(segs.filter(x => x.type === 'srest' && x.elapsed >= 10).map(x => Math.round(x.elapsed/5)*5));
   if (srest.length) lines.push('Seriepause ' + dur(srest[0]));
+  if (r.lac && r.lac.some(x => x.lac != null)) lines.push('Laktat: ' + r.lac.filter(x => x.lac != null).map(x => x.lac.toFixed(1)).join(', '));
   return {title, text: lines.join('\n')};
 }
 function copyText(t){
@@ -1387,7 +1475,7 @@ async function lockScreen(){ try{ if ('wakeLock' in navigator && !wl) { wl = awa
 function releaseLock(){ try{ wl && wl.release(); }catch{} wl = null; }
 
 /* ---------- kobling ---------- */
-function show(id){ ['setup','run','done'].forEach(x => $('#'+x).hidden = x !== id); window.scrollTo(0,0); if (id === 'setup') syncSetup(); }
+function show(id){ ['setup','run','done','lactate','lacRes'].forEach(x => $('#'+x).hidden = x !== id); window.scrollTo(0,0); if (id === 'setup') syncSetup(); }
 $('#startBtn').onclick = () => S ? applyPlan() : startSession();
 $('#freeBtn').onclick = () => { if (!S) startFree(); };
 $('#editBtn').onclick = editLive;
@@ -1400,6 +1488,282 @@ $('#spChips').onclick = e => {
   const b = e.target.closest('[data-set]'); if (!b || !S) return;
   const seg = S.segs[S.idx]; if (seg) adjust(+b.dataset.set - seg.speed);
 };
+
+/* ---------- laktatprofil (Olympiatoppens protokoll) ---------- */
+const LAC_DEF = {warmMin:10, warmSpeed:9, start:10, step:1.0, n:5, stageSec:300, pauseSec:30, incline:1, stop:4.0, coolMin:5, hfmax:0};
+const LAC_F = [
+  {k:'warmMin', l:'Oppvarming', u:'min', st:1, min:0, max:30},
+  {k:'warmSpeed', l:'Oppvarmingsfart', u:'km/t', st:0.5, min:3, max:20, dec:1},
+  {k:'start', l:'Fart trinn 1', u:'km/t', st:0.5, min:4, max:25, dec:1},
+  {k:'step', l:'Økning per trinn', u:'km/t', st:0.1, min:0.1, max:3, dec:1},
+  {k:'n', l:'Antall trinn', u:'stk', st:1, min:2, max:10},
+  {k:'stageSec', l:'Trinnlengde', st:30, min:120, max:600, time:1},
+  {k:'pauseSec', l:'Pause for laktat', st:15, min:15, max:180, time:1},
+  {k:'incline', l:'Stigning', u:'%', st:0.5, min:0, max:15, dec:1},
+  {k:'stop', l:'Stopp ved laktat over', u:'mmol', st:0.5, min:0, max:12, dec:1},
+  {k:'coolMin', l:'Nedjogg', u:'min', st:1, min:0, max:30},
+  {k:'hfmax', l:'Makspuls', u:'slag/min', st:1, min:0, max:230}
+];
+let LC = Object.assign({}, LAC_DEF, store.get('molle.lacCfg', {}));
+const lacTests = () => store.get('molle.lactate', []);
+const lacSaveTests = t => store.set('molle.lactate', t.slice(0, 40));
+const d1 = v => v == null || isNaN(v) ? '–' : dec(v);
+
+function lacBuildForm(){
+  $('#lacRows').innerHTML = LAC_F.map(f => `<div class="row"><label for="lc-${f.k}">${f.l}</label>
+    <div class="stepper"><button type="button" data-lk="${f.k}" data-d="-1" aria-label="Mindre">−</button>
+    <span class="val">${f.time ? `<output id="lc-${f.k}"></output>` : `<input id="lc-${f.k}" data-lk="${f.k}" inputmode="decimal" autocomplete="off">`}<span class="u">${f.u || ''}</span></span>
+    <button type="button" data-lk="${f.k}" data-d="1" aria-label="Mer">+</button></div></div>`).join('');
+  lacShowForm();
+}
+function lacShowForm(){
+  LAC_F.forEach(f => {
+    const el = $('#lc-' + f.k), v = LC[f.k];
+    const txt = f.time ? fmtT(v) : f.k === 'stop' && !v ? 'Av' : f.k === 'hfmax' && !v ? '–' : f.dec ? dec(v) : String(v);
+    if (el.tagName === 'INPUT'){ if (document.activeElement !== el) el.value = txt; } else el.textContent = txt;
+  });
+  const sp = Array.from({length: LC.n}, (_, i) => LC.start + i * LC.step);
+  const total = LC.warmMin * 60 + LC.n * (LC.stageSec + LC.pauseSec) + LC.coolMin * 60;
+  $('#lacPrev').innerHTML = sp.map((v, i) => `<div><span>Trinn ${i + 1}</span><b>${dec(v)} km/t</b><span class="pace">${pace(v)}</span></div>`).join('');
+  $('#lacEst').textContent = `${Math.round(total / 60)} min`;
+  store.set('molle.lacCfg', LC);
+}
+function lacSet(k, v){
+  const f = LAC_F.find(x => x.k === k); if (isNaN(v)) return;
+  v = Math.min(f.max, Math.max(f.min, v));
+  LC[k] = f.dec ? Math.round(v * 10) / 10 : Math.round(v);
+  if (k === 'hfmax' && LC.hfmax) store.set('molle.hfmax', LC.hfmax);
+}
+$('#lactate').addEventListener('click', e => {
+  const b = e.target.closest('button[data-lk][data-d]'); if (!b) return;
+  const f = LAC_F.find(x => x.k === b.dataset.lk);
+  let v = LC[f.k] + (+b.dataset.d) * f.st;
+  if (f.k === 'hfmax' && !LC.hfmax && +b.dataset.d > 0) v = 190;
+  lacSet(f.k, v); lacShowForm();
+});
+$('#lactate').addEventListener('change', e => {
+  const k = e.target.dataset && e.target.dataset.lk; if (!k || e.target.tagName !== 'INPUT') return;
+  const raw = e.target.value.trim().toLowerCase();
+  lacSet(k, raw === 'av' || raw === '–' || raw === '' ? 0 : parseNum(raw)); e.target.blur(); lacShowForm();
+});
+
+function lacOpen(){ show('lactate'); lacBuildForm(); lacList(); }
+function lacList(){
+  const t = lacTests();
+  $('#lacHistWrap').hidden = !t.length;
+  $('#lacHist').innerHTML = t.map((x, i) => {
+    const r = lacCalc(x);
+    return `<button type="button" class="lachrow" data-lt="${i}"><span><span>${new Date(x.date).toLocaleDateString('nb-NO', {weekday:'short', day:'numeric', month:'short', year:'numeric'})}</span>
+      <span class="d">${x.stages.length} trinn · ${dec(x.stages[0] ? x.stages[0].speed : 0)}–${dec(x.stages.length ? x.stages[x.stages.length - 1].speed : 0)} km/t</span></span>
+      <span class="k">${r.v4 ? dec(r.v4) + ' km/t' : '–'}<small>ved 4 mmol</small></span></button>`;
+  }).join('');
+}
+$('#lacHist').addEventListener('click', e => {
+  const b = e.target.closest('[data-lt]'); if (!b) return;
+  lacShowTest(+b.dataset.lt);
+});
+
+function lacStart(){
+  const add = (type, dur, speed, label, extra) => Object.assign({type, dur, speed, plan:speed, inc:LC.incline, label, elapsed:0, dist:0, climb:0, incT:0}, extra || {});
+  const segs = [];
+  if (LC.warmMin > 0) segs.push(add('warm', LC.warmMin * 60, LC.warmSpeed, 'Oppvarming'));
+  const stages = [];
+  for (let i = 0; i < LC.n; i++){
+    const v = Math.round((LC.start + i * LC.step) * 10) / 10;
+    segs.push(add('work', LC.stageSec, v, `Trinn ${i + 1}/${LC.n}`, {lacStage:i}));
+    segs.push(add('rest', LC.pauseSec, 0, 'Laktatmåling', {lacStage:i, inc:0}));
+    stages.push({speed:v, lac:null, hr:null});
+  }
+  if (LC.coolMin > 0) segs.push(add('cool', LC.coolMin * 60, LC.warmSpeed, 'Nedjogg'));
+  startSession({segs, idx:0, total:0, plan:clone(plan), title:'Laktatprofil', carry:false,
+    lac:{cfg:clone(LC), stages, stopAsked:{}}}, true);
+}
+
+// Puls i siste minutt av hvert trinn
+function lacStageHr(i){
+  const s = S.segs.find(x => x.type === 'work' && x.lacStage === i);
+  return s && s.hrLt ? Math.round(s.hrLs / s.hrLt) : null;
+}
+let lacDraft = {};
+function lacPending(){
+  if (!S || !S.lac) return null;
+  for (let i = 0; i < S.lac.stages.length; i++){
+    const w = S.segs.findIndex(x => x.type === 'work' && x.lacStage === i);
+    if (w < 0 || w >= S.idx) break;
+    if (S.lac.stages[i].lac == null) return i;
+  }
+  return null;
+}
+function lacUI(){
+  const box = $('#lacBox');
+  $('#editBtn').hidden = !!(S && S.lac);
+  if (!S || !S.lac){ box.hidden = true; $('#run').classList.remove('lacmode'); return; }
+  const ask = S.lac.ask;
+  $('#run').classList.toggle('lacmode', S.segs[S.idx] && S.segs[S.idx].lacStage != null && S.segs[S.idx].type === 'rest');
+  if (ask != null){
+    box.hidden = false;
+    if (box.dataset.mode !== 'ask' + ask){
+      box.dataset.mode = 'ask' + ask;
+      box.innerHTML = `<b>${dec(S.lac.stages[ask].lac)} mmol er over ${dec(S.lac.cfg.stop)}</b>
+        <span class="hint">Olympiatoppens protokoll har 4–5 trinn. Vil du avslutte testen her?</span>
+        <div class="lacbtns"><button type="button" class="btn pri" data-lac="end">Avslutt testen</button><button type="button" class="btn" data-lac="more">Ett trinn til</button></div>`;
+    }
+    return;
+  }
+  const i = lacPending();
+  if (i == null){ box.hidden = true; box.dataset.mode = ''; $('#run').classList.remove('lacmode'); return; }
+  const st = S.lac.stages[i], hr = lacStageHr(i);
+  box.hidden = false;
+  if (box.dataset.mode !== 'in' + i){
+    box.dataset.mode = 'in' + i;
+    if (lacDraft[i] == null) lacDraft[i] = i > 0 && S.lac.stages[i - 1].lac != null ? S.lac.stages[i - 1].lac : 1.5;
+    box.innerHTML = `<span class="lbl">Laktat etter trinn ${i + 1} · ${dec(st.speed)} km/t${hr ? ` · puls ${hr}` : ''}</span>
+      <div class="lacin"><button type="button" data-lac="-">−</button><input id="lacVal" inputmode="decimal" autocomplete="off"><span class="u">mmol</span><button type="button" data-lac="+">+</button></div>
+      <button type="button" class="btn pri" data-lac="save">Lagre laktat</button>`;
+    $('#lacVal').value = dec(lacDraft[i]);
+  }
+}
+$('#lacBox').addEventListener('click', e => {
+  const b = e.target.closest('[data-lac]'); if (!b || !S || !S.lac) return;
+  const a = b.dataset.lac, i = lacPending();
+  if (a === '+' || a === '-'){
+    const v = Math.max(0, Math.round(((parseNum($('#lacVal').value) || 0) + (a === '+' ? 0.1 : -0.1)) * 10) / 10);
+    lacDraft[i] = v; $('#lacVal').value = dec(v); return;
+  }
+  if (a === 'save'){
+    const v = parseNum($('#lacVal').value);
+    if (isNaN(v) || v < 0 || v > 30){ $('#lacVal').focus(); return; }
+    const st = S.lac.stages[i];
+    st.lac = Math.round(v * 10) / 10; st.hr = lacStageHr(i);
+    const moreWork = S.segs.some((x, j) => j > S.idx && x.type === 'work');
+    if (S.lac.cfg.stop > 0 && st.lac >= S.lac.cfg.stop && moreWork && !S.lac.stopAsked[i]){ S.lac.stopAsked[i] = true; S.lac.ask = i; }
+    save(); lacUI(); render(); return;
+  }
+  if (a === 'end'){
+    // Fjern resten av trinnene, behold nedjogg
+    S.segs = S.segs.filter((x, j) => j <= S.idx || x.lacStage == null);
+    S.lac.stages = S.lac.stages.filter((_, j) => S.segs.some(x => x.type === 'work' && x.lacStage === j));
+    S.lac.ask = null; buildTimeline(); save(); render();
+    if (S.idx >= S.segs.length - 1 && S.segs[S.idx] && S.segs[S.idx].type !== 'cool' && !S.segs.slice(S.idx + 1).length) {/* avsluttes når målingen er ferdig */}
+    return;
+  }
+  if (a === 'more'){ S.lac.ask = null; lacUI(); }
+});
+$('#lacBox').addEventListener('change', e => { if (e.target.id === 'lacVal'){ const i = lacPending(); const v = parseNum(e.target.value); if (!isNaN(v)) lacDraft[i] = v; } });
+
+// Når økta er ferdig: lagre testen og vis rapport øverst i oppsummeringen
+function lacFinish(){
+  const stages = S.lac.stages.map((st, i) => {
+    const w = S.segs.find(x => x.type === 'work' && x.lacStage === i);
+    if (!w || w.elapsed < 30) return null;
+    return {speed: Math.round((w.elapsed ? w.dist / w.elapsed * 3600 : st.speed) * 10) / 10, lac: st.lac, hr: st.hr != null ? st.hr : lacStageHr(i)};
+  }).filter(Boolean);
+  if (!stages.length) return;
+  const test = {id: Date.now(), date: (S.segs.find(x => x.start) || {}).start || Date.now(), cfg: S.lac.cfg, stages, hfmax: S.lac.cfg.hfmax || store.get('molle.hfmax', 0)};
+  const t = lacTests(); t.unshift(test); lacSaveTests(t);
+  if (lastRec) lastRec.lac = test.stages;
+  const box = document.createElement('section');
+  box.className = 'lacrep';
+  $('#done').prepend(box);
+  lacReport(test, box, () => { const all = lacTests(); const k = all.findIndex(x => x.id === test.id); if (k >= 0){ all[k] = test; lacSaveTests(all); } });
+}
+
+function lacInterp(xs, ys, target){
+  for (let i = 0; i < ys.length - 1; i++){
+    const a = ys[i], b = ys[i + 1];
+    if (a == null || b == null || xs[i] == null || xs[i + 1] == null) continue;
+    if (a <= target && target <= b && b > a) return xs[i] + (target - a) * (xs[i + 1] - xs[i]) / (b - a);
+  }
+  return null;
+}
+function lacCalc(t){
+  const s = t.stages.filter(x => x.lac != null);
+  const sp = s.map(x => x.speed), la = s.map(x => x.lac), hr = s.map(x => x.hr);
+  const v4 = lacInterp(sp, la, 4), v2 = lacInterp(sp, la, 2);
+  const hs = s.filter(x => x.hr != null);
+  const h4 = lacInterp(hs.map(x => x.hr), hs.map(x => x.lac), 4);
+  return {v4, v2, h4: h4 != null ? Math.round(h4) : null};
+}
+const IZ = [['I-1', 55, 72], ['I-2', 72, 82], ['I-3', 82, 87], ['I-4', 87, 92], ['I-5', 92, 100]];
+
+function lacChart(t, prevT){
+  const W = 340, H = 220, L = 34, R = 38, T = 12, B = 30;
+  const pts = t.stages.filter(x => x.lac != null);
+  const all = pts.concat(prevT ? prevT.stages.filter(x => x.lac != null) : []);
+  if (!pts.length) return '<p class="hint">Legg inn laktat for å se kurven.</p>';
+  const xmin = Math.floor(Math.min(...all.map(x => x.speed)) - 0.5), xmax = Math.ceil(Math.max(...all.map(x => x.speed)) + 0.5);
+  const ymax = Math.max(5, Math.ceil(Math.max(...all.map(x => x.lac)) + 0.5));
+  const hrs = t.stages.filter(x => x.hr != null).map(x => x.hr);
+  const hmin = hrs.length ? Math.floor((Math.min(...hrs) - 10) / 10) * 10 : 100, hmax = hrs.length ? Math.ceil((Math.max(...hrs) + 10) / 10) * 10 : 200;
+  const X = v => L + (v - xmin) / (xmax - xmin) * (W - L - R);
+  const Y = v => T + (1 - v / ymax) * (H - T - B);
+  const YH = v => T + (1 - (v - hmin) / (hmax - hmin)) * (H - T - B);
+  let g = '';
+  for (let y = 0; y <= ymax; y++) g += `<line x1="${L}" x2="${W - R}" y1="${Y(y)}" y2="${Y(y)}" class="gr"/><text x="${L - 6}" y="${Y(y) + 4}" class="ax" text-anchor="end">${y}</text>`;
+  for (let x = xmin; x <= xmax; x++) g += `<text x="${X(x)}" y="${H - B + 16}" class="ax" text-anchor="middle">${x}</text>`;
+  [2, 4].forEach(v => { if (v <= ymax) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" class="ref"/>`; });
+  if (hrs.length) for (let h = hmin; h <= hmax; h += 20) g += `<text x="${W - R + 6}" y="${YH(h) + 4}" class="ax hr">${h}</text>`;
+  const line = (arr, fy, cls) => arr.length > 1 ? `<polyline class="${cls}" points="${arr.map(p => `${X(p.speed).toFixed(1)},${fy(p).toFixed(1)}`).join(' ')}"/>` : '';
+  if (prevT){ const pp = prevT.stages.filter(x => x.lac != null); g += line(pp, p => Y(p.lac), 'prev'); }
+  const ph = t.stages.filter(x => x.hr != null);
+  g += line(ph, p => YH(p.hr), 'hrl') + ph.map(p => `<circle cx="${X(p.speed)}" cy="${YH(p.hr)}" r="3" class="hrd"/>`).join('');
+  g += line(pts, p => Y(p.lac), 'lacl') + pts.map(p => `<circle cx="${X(p.speed)}" cy="${Y(p.lac)}" r="4.5" class="lacd"/>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="lacsvg" role="img" aria-label="Laktat og puls mot fart">${g}
+    <text x="${L}" y="${H - 2}" class="ax">km/t</text></svg>
+    <div class="legend"><span><i class="lg-l"></i>Laktat (mmol)</span>${ph.length ? '<span><i class="lg-h"></i>Puls</span>' : ''}${prevT ? '<span><i class="lg-p"></i>Forrige test</span>' : ''}</div>`;
+}
+
+function lacReport(t, el, onChange, opts){
+  opts = opts || {};
+  const draw = () => {
+    const r = lacCalc(t), all = lacTests();
+    const prevT = all.find(x => x.id !== t.id && x.date < t.date);
+    const hfmax = t.hfmax || store.get('molle.hfmax', 0);
+    const hs = t.stages.filter(x => x.hr != null);
+    const vAtHr = h => lacInterp(hs.map(x => x.speed), hs.map(x => x.hr), h);
+    el.innerHTML = `
+      <div class="lbl">Laktatprofil · ${new Date(t.date).toLocaleDateString('nb-NO', {day:'numeric', month:'long', year:'numeric'})}</div>
+      <div class="trio">
+        <div><span class="lbl">Fart ved 4 mmol</span><span class="num">${d1(r.v4)}</span><span class="hint">${r.v4 ? pace(r.v4) : 'ikke nådd'}</span></div>
+        <div><span class="lbl">Puls ved 4 mmol</span><span class="num">${r.h4 || '–'}</span><span class="hint">${r.h4 && hfmax ? Math.round(r.h4 / hfmax * 100) + ' % av maks' : '&nbsp;'}</span></div>
+        <div><span class="lbl">Fart ved 2 mmol</span><span class="num">${d1(r.v2)}</span><span class="hint">${r.v2 ? pace(r.v2) : 'ikke nådd'}</span></div>
+      </div>
+      <div class="lacchart">${lacChart(t, prevT)}</div>
+      <div class="tbl"><table>
+        <thead><tr><th>Trinn</th><th>km/t</th><th>Puls</th><th>Laktat</th></tr></thead>
+        <tbody>${t.stages.map((s, i) => `<tr><td>${i + 1}</td><td>${dec(s.speed)}</td><td>${s.hr || '–'}</td>
+          <td><input class="lacedit" data-st="${i}" inputmode="decimal" value="${s.lac == null ? '' : dec(s.lac)}" placeholder="–" aria-label="Laktat trinn ${i + 1}"></td></tr>`).join('')}</tbody>
+      </table></div>
+      ${hfmax ? `<div class="izone"><span class="lbl">Olympiatoppens I-skala · makspuls ${hfmax}</span>
+        ${IZ.map(([n, a, b]) => { const h1 = Math.round(hfmax * a / 100), h2 = Math.round(hfmax * b / 100), v1 = vAtHr(h1), v2 = vAtHr(h2);
+          return `<div><b>${n}</b><span>${h1}–${h2} slag/min</span><span>${v1 && v2 ? dec(v1) + '–' + dec(v2) + ' km/t' : v1 ? 'fra ' + dec(v1) + ' km/t' : v2 ? 'opp til ' + dec(v2) + ' km/t' : ''}</span></div>`; }).join('')}
+        <span class="hint">Pulssonene er veiledende, etter Olympiatoppens intensitetsskala. Farten er regnet ut fra pulsen i testen og vises bare innenfor farten du testet.</span></div>`
+      : `<p class="hint">Legg inn makspuls i oppsettet for laktatprofil, så får du pulssoner (I-1 til I-5) og fart for hver sone.</p>`}
+      <p class="hint">Fart og puls ved 2 og 4 mmol er lest av mellom målepunktene. Laktatverdier fra håndholdte målere kan avvike fra laboratoriet.</p>
+      ${opts.del ? '<button type="button" class="btn ghost" data-lacdel>Slett testen</button>' : ''}`;
+    el.querySelectorAll('.lacedit').forEach(inp => inp.onchange = () => {
+      const v = parseNum(inp.value);
+      t.stages[+inp.dataset.st].lac = inp.value.trim() === '' || isNaN(v) ? null : Math.round(v * 10) / 10;
+      onChange && onChange(); draw();
+    });
+    const del = el.querySelector('[data-lacdel]');
+    if (del) del.onclick = () => {
+      if (!del.classList.contains('arm')){ del.classList.add('arm'); del.textContent = 'Trykk igjen for å slette'; return; }
+      lacSaveTests(lacTests().filter(x => x.id !== t.id)); lacOpen();
+    };
+  };
+  draw();
+}
+function lacShowTest(i){
+  const t = lacTests()[i]; if (!t) return;
+  show('lacRes');
+  $('#lacResBody').innerHTML = '';
+  lacReport(t, $('#lacResBody'), () => { const all = lacTests(); const k = all.findIndex(x => x.id === t.id); if (k >= 0){ all[k] = t; lacSaveTests(all); } }, {del:true});
+}
+$('#lacOpenBtn').onclick = lacOpen;
+$('#lacBack').onclick = () => show('setup');
+$('#lacResBack').onclick = lacOpen;
+$('#lacStartBtn').onclick = lacStart;
 
 buildForm(); showForm(); soundIcon(); renderSetupExtras(); hrUI();
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

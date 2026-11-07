@@ -6,6 +6,8 @@ Eier: Sigurd (GitHub: svalandaas-arch). Snakk norsk (bokmål), enkelt og uten te
 
 Intervallapp for tredemølla. Man setter opp økta på forhånd (oppvarming, steg med drag og pauser, serier med seriepause, nedjogg, fart og stigning for hver del) og ser distanse, tid, fart, stigning og puls mens man løper. Distansen regnes ut fra farten man har stilt inn. Økta kan lagres som .fit (tidligere .tcx) og lastes opp til Strava/Garmin. Med «Fiktiv rute» får filen en rundløype på Juvatn i Åseral og sub_sport virtual_activity, så Strava viser høydemeter og merker økta som virtuell løpetur.
 
+Egen side for **laktatprofil** etter Olympiatoppens protokoll (10 min oppvarming, 4–5 trinn à 5 min, +0,9–1,0 km/t, 30 s pause for laktatmåling). Laktat legges inn i pausen, puls tas som snitt av siste minutt i trinnet. Rapporten viser fart/puls ved 2 og 4 mmol, kurve, og I-soner (Olympiatoppens I-skala 2024) fra makspuls. Tester lagres i localStorage-nøkkelen `molle.lactate`.
+
 ## Hvor ting ligger
 
 - `docs/` publiseres med GitHub Pages på https://svalandaas-arch.github.io/Molle/
