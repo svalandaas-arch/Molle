@@ -6,7 +6,7 @@ Eier: Sigurd (GitHub: svalandaas-arch). Snakk norsk (bokmål), enkelt og uten te
 
 Intervallapp for tredemølla. Man setter opp økta på forhånd (oppvarming, steg med drag og pauser, serier med seriepause, nedjogg, fart og stigning for hver del) og ser distanse, tid, fart, stigning og puls mens man løper. Distansen regnes ut fra farten man har stilt inn. Økta kan lagres som .fit (tidligere .tcx) og lastes opp til Strava/Garmin. Med «Fiktiv rute» får filen en rundløype på Juvatn i Åseral og sub_sport virtual_activity, så Strava viser høydemeter og merker økta som virtuell løpetur.
 
-Egen side for **laktatprofil** etter Olympiatoppens protokoll (10 min oppvarming, 4–5 trinn à 5 min, +0,9–1,0 km/t, 30 s pause for laktatmåling). Laktat legges inn i pausen, puls tas som snitt av siste minutt i trinnet. Rapporten viser LT1 og LT2 (individuell: bunn + 0,5 mmol og modifisert Dmax, eller fast 2/4 mmol), graf med soner, tabell med tersklene innsatt, og treningssoner. Tester lagres i localStorage-nøkkelen `molle.lactate`.
+Egen side for **laktatanalyse** (knappen i oppsettet): en tabell man fyller inn med fart, puls og laktat per trinn (f.eks. fra en laktatprofil etter Olympiatoppens protokoll). Analysen oppdateres mens man skriver: LT1 og LT2 (individuell: bunn + 0,5 mmol og modifisert Dmax, eller fast 2/4 mmol), graf, soner etter Jack Daniels (VDOT fra T-fart = LT2) og Marius Bakken (laktatgrenser 2/3/4 mmol). Tester lagres i `molle.lactate`, utkastet i `molle.lacDraft`. Den gamle løpemodusen for laktattest (lacStart/lacFinish) finnes i koden, men har ingen knapp lenger.
 
 ## Hvor ting ligger
 

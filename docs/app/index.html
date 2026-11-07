@@ -211,6 +211,34 @@ body.locked{overflow:hidden}
 .izone .hint{background:var(--panel);padding:6px 14px 10px;margin:0;font-size:13px}
 .lacempty{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;text-align:center;min-height:170px;padding:16px;border:1px dashed var(--line);border-radius:10px;margin:4px}
 .lacempty span{color:var(--muted);font-size:14px;max-width:34ch}
+.edcard{display:flex;flex-direction:column;gap:12px;background:var(--panel);border-radius:14px;padding:14px}
+.edhead{display:flex;justify-content:space-between;align-items:center}
+.edhead h2{margin:0;font-family:var(--display);font-size:24px;text-transform:uppercase}
+.edmeta{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.edmeta label{display:flex;flex-direction:column;gap:4px;min-width:0}
+.edmeta input,.edtbl input{width:100%;min-width:0;height:44px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--fg);font:inherit;padding:0 10px}
+.edtbl{width:100%}
+.edtbl th{text-align:left;padding:6px 4px}
+.edtbl td{padding:4px;border:0;font-family:var(--body);font-size:15px}
+.edtbl td:first-child{color:var(--muted);width:24px;display:table-cell}
+.edtbl input{font-family:var(--display);font-size:20px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.edtbl .rm{width:36px;height:36px;border-radius:8px;color:var(--muted);font-size:20px}
+.edact{display:flex;gap:8px}.edact .btn{height:48px}.edact .pri{flex:1}
+.lachrow.on{box-shadow:inset 3px 0 0 var(--work)}
+.ztab{background:var(--panel);border-radius:12px;overflow:hidden}
+.zhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding:12px 14px 4px}
+.zhead .hint{margin:0;font-size:12px}
+.ztab table{width:100%;border-collapse:collapse}
+.ztab th{padding:6px 10px}
+.ztab td{padding:9px 10px;font-size:17px;vertical-align:top;border-bottom:1px solid var(--line)}
+.ztab tr:last-child td{border-bottom:0}
+.ztab td:not(:first-child){white-space:nowrap;font-variant-numeric:tabular-nums}
+.ztab td:first-child{min-width:0}
+.ztab td:first-child{display:block;font-family:var(--body);font-size:15px}
+.zk{display:inline-block;min-width:26px;font-family:var(--display);font-size:20px;color:var(--work)}
+.zk2{font-weight:600}
+.zn{font-weight:600}
+.zt{display:block;color:var(--muted);font-size:12px;line-height:1.3;margin-top:2px}
 .lachead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .seg2{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
 .seg2 button{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted)}
@@ -328,7 +356,7 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
     <p class="sub">Still inn økta, start, og juster farten underveis så den stemmer med mølla. Distansen regnes ut fra fart og tid.</p>
   </header>
 
-  <button type="button" class="laccard" id="lacOpenBtn"><span><b>Laktatprofil</b><small>Trinnvis test etter Olympiatoppens protokoll</small></span><span class="arrow" aria-hidden="true">›</span></button>
+  <button type="button" class="laccard" id="lacOpenBtn"><span><b>Laktatanalyse</b><small>Fyll inn laktatprofilen og få terskler og soner</small></span><span class="arrow" aria-hidden="true">›</span></button>
 
   <div id="liveBar" class="livebar" hidden>
     <div class="lb-t"><span class="lbl">Økta pågår</span><b id="liveTxt"></b></div>
@@ -474,34 +502,32 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
 <!-- OPPSUMMERING -->
 <main id="done" hidden></main>
 
-<!-- LAKTATPROFIL -->
+<!-- LAKTATANALYSE -->
 <main id="lactate" class="lacmain" hidden>
   <button type="button" class="back" id="lacBack">‹ Tilbake</button>
   <header>
-    <h1>Laktat<span>profil</span></h1>
-    <p class="sub">Etter Olympiatoppens protokoll: 10 min kontrollert oppvarming, så 4–5 trinn på 5 minutter. Farten øker med 0,9–1,0 km/t per trinn, og laktat måles i en pause på 30 sekunder mellom trinnene. Puls registreres for hvert trinn.</p>
+    <h1>Laktat<span>analyse</span></h1>
+    <p class="sub">Fyll inn resultatene fra en laktatprofil, for eksempel etter Olympiatoppens protokoll med trinn på 5 minutter. Du får LT1 og LT2, og treningssoner etter Jack Daniels og Marius Bakken.</p>
   </header>
-  <section class="group">
-    <div class="ghead"><span class="dot" style="background:var(--work)"></span><h2>Oppsett</h2></div>
-    <div class="rows" id="lacRows"></div>
-    <p class="hint">Olympiatoppen oppgir ikke startfart eller stigning for løping. Velg en startfart som kjennes rolig, slik at første trinn gir lav laktat. «Stopp ved laktat over» spør om du vil avslutte når grensen er passert. Sett den til «Av» for å løpe alle trinnene.</p>
+  <section class="edcard">
+    <div class="edhead"><h2 id="edTitle">Ny test</h2><button type="button" class="link" id="edNew">+ Ny test</button></div>
+    <div class="edmeta">
+      <label for="edDate"><span class="lbl">Dato</span><input type="date" id="edDate"></label>
+      <label for="edHf"><span class="lbl">Makspuls</span><input id="edHf" inputmode="numeric" placeholder="valgfritt" autocomplete="off"></label>
+    </div>
+    <div class="tbl"><table class="edtbl">
+      <thead><tr><th>#</th><th>Fart km/t</th><th>Puls</th><th>Laktat</th><th></th></tr></thead>
+      <tbody id="edRows"></tbody>
+    </table></div>
+    <button type="button" class="btn" id="edAdd">+ Legg til trinn</button>
+    <div class="edact"><button type="button" class="btn pri" id="edSaveBtn">Lagre testen</button><button type="button" class="btn ghost" id="edDel">Slett</button></div>
+    <p class="hint" id="edMsg" role="status"></p>
   </section>
-  <section class="group">
-    <div class="lbl" style="margin-bottom:8px">Trinnene</div>
-    <div id="lacPrev" class="lacprev"></div>
-  </section>
+  <section class="lacrep" id="edOut"></section>
   <section class="group" id="lacHistWrap" hidden>
-    <div class="lbl" style="margin-bottom:8px">Tidligere tester</div>
+    <div class="lbl" style="margin-bottom:8px">Lagrede tester</div>
     <div id="lacHist" class="lachist"></div>
   </section>
-  <div class="startbar"><div class="in">
-    <button class="big" id="lacStartBtn"><span>Start laktatprofil</span> <small id="lacEst"></small></button>
-  </div></div>
-</main>
-
-<main id="lacRes" class="lacmain" hidden>
-  <button type="button" class="back" id="lacResBack">‹ Laktatprofil</button>
-  <section class="lacrep" id="lacResBody"></section>
 </main>
 
 <script>
@@ -1509,7 +1535,7 @@ async function lockScreen(){ try{ if ('wakeLock' in navigator && !wl) { wl = awa
 function releaseLock(){ try{ wl && wl.release(); }catch{} wl = null; }
 
 /* ---------- kobling ---------- */
-function show(id){ ['setup','run','done','lactate','lacRes'].forEach(x => $('#'+x).hidden = x !== id); window.scrollTo(0,0); if (id === 'setup') syncSetup(); }
+function show(id){ ['setup','run','done','lactate'].forEach(x => $('#'+x).hidden = x !== id); window.scrollTo(0,0); if (id === 'setup') syncSetup(); }
 $('#startBtn').onclick = () => S ? applyPlan() : startSession();
 $('#freeBtn').onclick = () => { if (!S) startFree(); };
 $('#editBtn').onclick = editLive;
@@ -1579,22 +1605,6 @@ $('#lactate').addEventListener('change', e => {
   const k = e.target.dataset && e.target.dataset.lk; if (!k || e.target.tagName !== 'INPUT') return;
   const raw = e.target.value.trim().toLowerCase();
   lacSet(k, raw === 'av' || raw === '–' || raw === '' ? 0 : parseNum(raw)); e.target.blur(); lacShowForm();
-});
-
-function lacOpen(){ show('lactate'); lacBuildForm(); lacList(); }
-function lacList(){
-  const t = lacTests();
-  $('#lacHistWrap').hidden = !t.length;
-  $('#lacHist').innerHTML = t.map((x, i) => {
-    const r = lacCalc(x);
-    return `<button type="button" class="lachrow" data-lt="${i}"><span><span>${new Date(x.date).toLocaleDateString('nb-NO', {weekday:'short', day:'numeric', month:'short', year:'numeric'})}</span>
-      <span class="d">${x.stages.length} trinn · ${dec(x.stages[0] ? x.stages[0].speed : 0)}–${dec(x.stages.length ? x.stages[x.stages.length - 1].speed : 0)} km/t</span></span>
-      <span class="k">${r.v2 ? dec(r.v2) + ' km/t' : '–'}<small>LT2${r.v1 ? ' · LT1 ' + dec(r.v1) : ''}</small></span></button>`;
-  }).join('');
-}
-$('#lacHist').addEventListener('click', e => {
-  const b = e.target.closest('[data-lt]'); if (!b) return;
-  lacShowTest(+b.dataset.lt);
 });
 
 function lacStart(){
@@ -1711,6 +1721,7 @@ function lacInterp(xs, ys, target){
   }
   return null;
 }
+const IZ_ = 0;
 const IZ = [['I-1', 55, 72], ['I-2', 72, 82], ['I-3', 82, 87], ['I-4', 87, 92], ['I-5', 92, 100]];
 // Minste kvadraters tredjegradspolynom (for modifisert Dmax)
 function polyFit(xs, ys, deg){
@@ -1880,10 +1891,161 @@ function lacShowTest(i){
   $('#lacResBody').innerHTML = '';
   lacReport(t, $('#lacResBody'), () => { const all = lacTests(); const k = all.findIndex(x => x.id === t.id); if (k >= 0){ all[k] = t; lacSaveTests(all); } }, {del:true});
 }
+
+/* ---------- laktatanalyse: tabell man fyller inn ---------- */
+const todayStr = () => { const d = new Date(), z = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`; };
+const emptyRows = n => Array.from({length: n}, () => ({speed: null, hr: null, lac: null}));
+let ED = store.get('molle.lacDraft', null) || {id: null, date: todayStr(), hfmax: store.get('molle.hfmax', 0) || null, rows: emptyRows(5)};
+const edSave = () => store.set('molle.lacDraft', ED);
+const numOrNull = v => { const n = parseNum(String(v).trim()); return String(v).trim() === '' || isNaN(n) ? null : n; };
+
+function edTest(){
+  const stages = ED.rows.filter(r => r.speed != null).map(r => ({speed: r.speed, hr: r.hr, lac: r.lac})).sort((a, b) => a.speed - b.speed);
+  return {id: ED.id || 'utkast', date: ED.date ? new Date(ED.date + 'T12:00').getTime() : Date.now(), hfmax: ED.hfmax || 0, stages};
+}
+function edRender(){
+  $('#edDate').value = ED.date || '';
+  $('#edHf').value = ED.hfmax || '';
+  $('#edRows').innerHTML = ED.rows.map((r, i) => `<tr>
+    <td>${i + 1}</td>
+    <td><input inputmode="decimal" data-r="${i}" data-f="speed" value="${r.speed == null ? '' : dec(r.speed)}" placeholder="km/t" aria-label="Fart trinn ${i + 1}"></td>
+    <td><input inputmode="numeric" data-r="${i}" data-f="hr" value="${r.hr == null ? '' : r.hr}" placeholder="–" aria-label="Puls trinn ${i + 1}"></td>
+    <td><input inputmode="decimal" data-r="${i}" data-f="lac" value="${r.lac == null ? '' : dec(r.lac)}" placeholder="mmol" aria-label="Laktat trinn ${i + 1}"></td>
+    <td><button type="button" class="rm" data-rm="${i}" aria-label="Fjern trinn ${i + 1}">×</button></td></tr>`).join('');
+  $('#edSaveBtn').textContent = ED.id ? 'Lagre endringer' : 'Lagre testen';
+  $('#edTitle').textContent = ED.id ? 'Rediger test' : 'Ny test';
+  edAnalyse();
+}
+function edAnalyse(){
+  const t = edTest(), el = $('#edOut');
+  const n = t.stages.filter(s => s.lac != null).length;
+  if (n < 2){
+    el.innerHTML = `<div class="lacempty"><b>Analysen kommer når du har fylt inn</b><span>Skriv inn fart og laktat for minst to trinn. Puls er valgfritt, men gir pulssoner.</span></div>`;
+    return;
+  }
+  lacAnalysis(t, el);
+}
+$('#lactate').addEventListener('input', e => {
+  const i = e.target.dataset.r, f = e.target.dataset.f;
+  if (i != null && f){
+    let v = numOrNull(e.target.value);
+    if (v != null){ if (f === 'hr') v = Math.round(v); else v = Math.round(v * 10) / 10; }
+    ED.rows[+i][f] = v; edSave(); edAnalyse(); return;
+  }
+  if (e.target.id === 'edDate'){ ED.date = e.target.value; edSave(); edAnalyse(); }
+  if (e.target.id === 'edHf'){ const v = numOrNull(e.target.value); ED.hfmax = v ? Math.round(v) : null; if (ED.hfmax) store.set('molle.hfmax', ED.hfmax); edSave(); edAnalyse(); }
+});
+$('#lactate').addEventListener('click', e => {
+  const rm = e.target.closest('[data-rm]');
+  if (rm){ ED.rows.splice(+rm.dataset.rm, 1); if (!ED.rows.length) ED.rows = emptyRows(1); edSave(); edRender(); return; }
+  if (e.target.closest('#edAdd')){
+    const last = ED.rows.filter(r => r.speed != null).slice(-1)[0], prev = ED.rows.filter(r => r.speed != null).slice(-2)[0];
+    const step = last && prev && last !== prev ? Math.round((last.speed - prev.speed) * 10) / 10 : 1;
+    ED.rows.push({speed: last ? Math.round((last.speed + step) * 10) / 10 : null, hr: null, lac: null}); edSave(); edRender();
+    const inp = document.querySelector(`[data-r="${ED.rows.length - 1}"][data-f="lac"]`); if (inp) inp.focus();
+    return;
+  }
+  if (e.target.closest('#edNew')){
+    ED = {id: null, date: todayStr(), hfmax: store.get('molle.hfmax', 0) || null, rows: emptyRows(5)}; edSave(); edRender(); window.scrollTo(0, 0); return;
+  }
+  if (e.target.closest('#edSaveBtn')){
+    const t = edTest();
+    if (t.stages.filter(s => s.lac != null).length < 2){ $('#edMsg').textContent = 'Fyll inn fart og laktat for minst to trinn først.'; return; }
+    const all = lacTests();
+    if (ED.id){ const k = all.findIndex(x => x.id === ED.id); if (k >= 0) all[k] = Object.assign(all[k], t, {id: ED.id}); else all.unshift(Object.assign(t, {id: ED.id})); }
+    else { ED.id = Date.now(); all.unshift(Object.assign(t, {id: ED.id})); }
+    all.sort((a, b) => b.date - a.date);
+    lacSaveTests(all); edSave(); edRender(); lacList();
+    $('#edMsg').textContent = 'Lagret.'; setTimeout(() => { $('#edMsg').textContent = ''; }, 2500);
+    return;
+  }
+  if (e.target.closest('#edDel') && ED.id){
+    const b = e.target.closest('#edDel');
+    if (!b.classList.contains('arm')){ b.classList.add('arm'); b.textContent = 'Trykk igjen for å slette'; return; }
+    lacSaveTests(lacTests().filter(x => x.id !== ED.id));
+    ED = {id: null, date: todayStr(), hfmax: store.get('molle.hfmax', 0) || null, rows: emptyRows(5)}; edSave(); edRender(); lacList();
+  }
+});
+function edLoad(t){
+  const z = n => String(n).padStart(2, '0'), d = new Date(t.date);
+  ED = {id: t.id, date: `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`, hfmax: t.hfmax || null,
+    rows: t.stages.map(s => ({speed: s.speed, hr: s.hr != null ? s.hr : null, lac: s.lac != null ? s.lac : null}))};
+  edSave(); edRender(); window.scrollTo(0, 0);
+}
+
+// Jack Daniels: VO2 for fart (m/min) og omvendt. T-fart settes lik LT2 (ca. 88 % av VDOT).
+const jdVo2 = v => -4.60 + 0.182258 * v + 0.000104 * v * v;
+const jdSpeed = vo2 => { const a = 0.000104, b = 0.182258, c = -4.60 - vo2; return (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a) * 60 / 1000; };
+const JD = [['E', 'Easy', 0.59, 0.74, 'Rolig langkjøring og oppvarming'], ['M', 'Maraton', 0.75, 0.84, 'Maratonfart'], ['T', 'Terskel', 0.83, 0.88, 'Tempo og terskelintervaller, 20–60 min'], ['I', 'Intervall', 0.95, 1.00, 'Intervaller på 3–5 min'], ['R', 'Repetisjon', 1.05, 1.15, 'Korte, raske drag med lang pause']];
+const BK = [['Rolig', null, 2.0, 'Langkjøring og restitusjon, under LT1'], ['Terskel formiddag', 2.0, 3.0, 'For eksempel 5 × 6 min. Bakkens «sweet spot» er 2,3–3,0 mmol'], ['Terskel ettermiddag', 3.0, 4.0, 'For eksempel 10 × 1000 m, rundt 3,5 mmol'], ['Bakke / VO₂', 4.0, null, 'Harde drag over terskel, sjelden og kontrollert']];
+
+function lacAnalysis(t, el){
+  const r = lacCalc(t);
+  const all = lacTests(), prevT = all.find(x => x.id !== t.id && x.date < t.date);
+  const hfmax = t.hfmax || 0;
+  const hs = t.stages.filter(x => x.hr != null);
+  const hrAt = v => { if (v == null) return null; const h = lacInterp(hs.map(x => x.hr), hs.map(x => x.speed), v); return h != null ? Math.round(h) : null; };
+  const pct = h => h && hfmax ? ` · ${Math.round(h / hfmax * 100)} %` : '';
+  const kmh = v => v == null ? null : Math.round(v * 10) / 10;
+  const range = (a, b) => a != null && b != null ? `${dec(a)}–${dec(b)}` : a != null ? `over ${dec(a)}` : b != null ? `under ${dec(b)}` : '–';
+  const prange = (a, b) => a != null && b != null ? `${pace(b).replace(' /km','')}–${pace(a).replace(' /km','')}` : a != null ? `raskere enn ${pace(a).replace(' /km','')}` : b != null ? `saktere enn ${pace(b).replace(' /km','')}` : '';
+  const hrange = (a, b) => { const h1 = hrAt(a), h2 = hrAt(b); return h1 && h2 ? `${h1}–${h2}` : h1 ? `over ${h1}` : h2 ? `under ${h2}` : ''; };
+  const card = (n, cls, v, l, h, txt) => `<div class="thr ${cls}"><span class="thn">${n}</span>
+    ${v != null ? `<span class="num">${dec(v)}<span class="unit">km/t</span></span><span class="thd">${pace(v)} · ${h ? h + ' slag/min' : 'puls –'}${pct(h)} · ${dec(l)} mmol</span>`
+    : `<span class="num">–</span><span class="thd">Ikke funnet. Fyll inn flere trinn</span>`}<span class="thx">${txt}</span></div>`;
+
+  // Daniels
+  let jd = '';
+  if (r.v2 != null){
+    const vdot = jdVo2(r.v2 * 1000 / 60) / 0.88;
+    jd = `<section class="ztab"><div class="zhead"><span class="lbl">Jack Daniels · VDOT ${dec(vdot)}</span><span class="hint">T-fart satt lik LT2</span></div>
+      <table><thead><tr><th></th><th>km/t</th><th>min/km</th><th>Puls</th></tr></thead><tbody>
+      ${JD.map(([k, n, a, b, txt]) => { const v1 = kmh(jdSpeed(a * vdot)), v2 = kmh(jdSpeed(b * vdot)); return `<tr><td><b class="zk">${k}</b><span class="zn">${n}</span><span class="zt">${txt}</span></td><td>${range(v1, v2)}</td><td>${prange(v1, v2)}</td><td>${hrange(v1, v2) || '–'}</td></tr>`; }).join('')}
+      </tbody></table></section>`;
+  }
+  // Bakken
+  const s = t.stages.filter(x => x.lac != null);
+  const vAtL = L => { const v = lacInterp(s.map(x => x.speed), s.map(x => x.lac), L); return v != null ? kmh(v) : null; };
+  const bk = `<section class="ztab"><div class="zhead"><span class="lbl">Marius Bakken · laktatstyrt</span><span class="hint">Fart lest av ved laktatgrensene</span></div>
+    <table><thead><tr><th></th><th>mmol</th><th>km/t</th><th>Puls</th></tr></thead><tbody>
+    ${BK.map(([n, a, b, txt]) => { const v1 = a != null ? vAtL(a) : null, v2 = b != null ? vAtL(b) : null;
+      const sp = a == null ? (v2 != null ? `under ${dec(v2)}` : '–') : b == null ? (v1 != null ? `over ${dec(v1)}` : '–') : range(v1, v2);
+      return `<tr><td><b class="zk2">${n}</b><span class="zt">${txt}</span></td><td>${a == null ? '< ' + dec(b) : b == null ? '> ' + dec(a) : dec(a) + '–' + dec(b)}</td><td>${sp}</td><td>${hrange(v1, v2) || '–'}</td></tr>`; }).join('')}
+    </tbody></table></section>`;
+
+  const M = LAC_METHODS[r.method];
+  el.innerHTML = `
+    <div class="lachead"><span class="lbl">Terskler</span>
+      <div class="seg2" role="group" aria-label="Metode">${Object.entries(LAC_METHODS).map(([k, m]) => `<button type="button" data-meth="${k}" class="${k === r.method ? 'on' : ''}" aria-pressed="${k === r.method}">${m.name}</button>`).join('')}</div></div>
+    <div class="thrs">
+      ${card('LT1', 't1', r.v1, r.l1, r.h1, 'Aerob terskel. Under denne farten er det rolig.')}
+      ${card('LT2', 't2', r.v2, r.l2, r.h2, 'Anaerob terskel. Høyeste fart du kan holde lenge.')}
+    </div>
+    <div class="lacchart">${lacChart(t, r, prevT)}</div>
+    ${jd}${bk}
+    <details class="lacinfo"><summary>Hvordan dette er regnet ut</summary>
+      <p><b>${M.name}:</b> ${M.lt1} ${M.lt2}</p>
+      <p><b>Jack Daniels:</b> VDOT er regnet ut fra at T-farten (terskel) er lik LT2, og er omtrent 88 % av VO₂maks. De andre fartene følger Daniels' prosenter: E 59–74 %, M 75–84 %, T 83–88 %, I 95–100 % og R 105–115 %.</p>
+      <p><b>Marius Bakken:</b> Farten er lest av der laktatkurven passerer grensene. Rolig er under LT1 (cirka 2 mmol). Terskeløktene ligger mellom 2 og 4 mmol, med «sweet spot» 2,3–3,0 mmol.</p>
+      <p>Pulsen vises bare innenfor det du har testet. Laktat fra håndholdte målere kan avvike fra laboratoriet, så bruk tallene som veiledning.</p>
+    </details>`;
+  el.querySelectorAll('[data-meth]').forEach(b => b.onclick = () => { store.set('molle.lacMethod', b.dataset.meth); lacAnalysis(t, el); });
+}
+
+function lacOpen(){ show('lactate'); edRender(); lacList(); }
+function lacList(){
+  const t = lacTests();
+  $('#lacHistWrap').hidden = !t.length;
+  $('#lacHist').innerHTML = t.map((x, i) => {
+    const r = lacCalc(x);
+    return `<button type="button" class="lachrow${x.id === ED.id ? ' on' : ''}" data-lt="${i}"><span><span>${new Date(x.date).toLocaleDateString('nb-NO', {weekday:'short', day:'numeric', month:'short', year:'numeric'})}</span>
+      <span class="d">${x.stages.length} trinn · ${dec(x.stages[0] ? x.stages[0].speed : 0)}–${dec(x.stages.length ? x.stages[x.stages.length - 1].speed : 0)} km/t</span></span>
+      <span class="k">${r.v2 ? dec(r.v2) + ' km/t' : '–'}<small>LT2${r.v1 ? ' · LT1 ' + dec(r.v1) : ''}</small></span></button>`;
+  }).join('');
+}
+$('#lacHist').addEventListener('click', e => { const b = e.target.closest('[data-lt]'); if (b){ edLoad(lacTests()[+b.dataset.lt]); lacList(); } });
 $('#lacOpenBtn').onclick = lacOpen;
 $('#lacBack').onclick = () => show('setup');
-$('#lacResBack').onclick = lacOpen;
-$('#lacStartBtn').onclick = lacStart;
 
 buildForm(); showForm(); soundIcon(); renderSetupExtras(); hrUI();
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
