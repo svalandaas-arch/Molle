@@ -215,6 +215,38 @@ body.locked{overflow:hidden}
 .izone div{display:grid;grid-template-columns:44px 1fr auto;gap:10px;background:var(--panel);padding:8px 14px;font-variant-numeric:tabular-nums}
 .izone b{font-family:var(--display);font-size:18px;color:var(--work)}
 .izone .hint{background:var(--panel);padding:6px 14px 10px;margin:0;font-size:13px}
+.lachead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.seg2{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg2 button{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg2 button.on{background:var(--panel2);color:var(--fg)}
+.thrs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.thr{display:flex;flex-direction:column;gap:4px;background:var(--panel);border-radius:12px;padding:12px;border-top:4px solid var(--c);min-width:0}
+.thr.t1{--c:var(--rest)}.thr.t2{--c:var(--work)}
+.thn{font-family:var(--display);font-size:20px;font-weight:700;color:var(--c);letter-spacing:.03em}
+.thr .num{font-family:var(--display);font-size:38px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.thr .unit{font-size:15px;color:var(--muted);font-family:var(--body);margin-left:4px;font-weight:500}
+.thd{font-size:13px;color:var(--fg);font-variant-numeric:tabular-nums}
+.thx{font-size:12px;color:var(--muted);line-height:1.35}
+.lacsvg .z1{fill:var(--rest);opacity:.08}.lacsvg .z2{fill:var(--work);opacity:.07}.lacsvg .z3{fill:var(--danger);opacity:.09}
+.lacsvg .tl{stroke-width:1.5;stroke-dasharray:3 3}.lacsvg .tl.t1,.lacsvg .td.t1{stroke:var(--rest)}.lacsvg .tl.t2,.lacsvg .td.t2{stroke:var(--work)}
+.lacsvg .td{fill:var(--bg);stroke-width:3}
+.lacsvg .tt{font-family:var(--display);font-size:13px;font-weight:700}.lacsvg .tt.t1{fill:var(--rest)}.lacsvg .tt.t2{fill:var(--work)}
+.lg-z1{background:color-mix(in srgb,var(--rest) 35%,transparent)}.lg-z2{background:color-mix(in srgb,var(--work) 35%,transparent)}.lg-z3{background:color-mix(in srgb,var(--danger) 40%,transparent)}
+.lactbl td,.lactbl th{padding:8px 6px}
+.lactbl td:first-child{font-size:15px}
+.lactbl .thrrow td{font-family:var(--display);font-weight:700;font-size:18px;background:color-mix(in srgb,var(--c) 14%,transparent)}
+.lactbl .thrrow.t1{--c:var(--rest)}.lactbl .thrrow.t2{--c:var(--work)}
+.lactbl .thrrow td:first-child b{color:var(--c);font-family:var(--display);font-size:18px}
+.zd{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;flex:none;background:var(--line)}
+.zd.z1{background:var(--rest)}.zd.z2{background:var(--work)}.zd.z3{background:var(--danger)}
+.zones{display:flex;flex-direction:column;gap:1px;border-radius:10px;overflow:hidden}
+.zones .lbl{background:var(--panel);padding:10px 14px 4px}
+.zl{display:grid;grid-template-columns:auto auto 1fr;grid-template-areas:"d n v" ". h h";column-gap:4px;row-gap:2px;align-items:center;background:var(--panel);padding:10px 14px}
+.zl .zd{grid-area:d}.zl b{grid-area:n;margin-right:8px}.zl > span:nth-of-type(2){grid-area:v;text-align:right;font-variant-numeric:tabular-nums}.zl .hint{grid-area:h;margin:0;font-size:13px}
+.lacinfo{background:var(--panel);border-radius:10px;padding:10px 14px}
+.lacinfo summary{cursor:pointer;font-weight:600}
+.lacinfo p{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.45}
+@media (max-width:360px){.thrs{grid-template-columns:1fr}}
 .btn.arm{background:var(--danger);border-color:var(--danger);color:#fff}
 .stdrow{display:flex;flex-wrap:wrap;gap:8px}
 .stdrow .btn{flex:1 1 180px;height:48px}
@@ -1643,7 +1675,7 @@ function lacList(){
     const r = lacCalc(x);
     return `<button type="button" class="lachrow" data-lt="${i}"><span><span>${new Date(x.date).toLocaleDateString('nb-NO', {weekday:'short', day:'numeric', month:'short', year:'numeric'})}</span>
       <span class="d">${x.stages.length} trinn · ${dec(x.stages[0] ? x.stages[0].speed : 0)}–${dec(x.stages.length ? x.stages[x.stages.length - 1].speed : 0)} km/t</span></span>
-      <span class="k">${r.v4 ? dec(r.v4) + ' km/t' : '–'}<small>ved 4 mmol</small></span></button>`;
+      <span class="k">${r.v2 ? dec(r.v2) + ' km/t' : '–'}<small>LT2${r.v1 ? ' · LT1 ' + dec(r.v1) : ''}</small></span></button>`;
   }).join('');
 }
 $('#lacHist').addEventListener('click', e => {
@@ -1764,41 +1796,105 @@ function lacInterp(xs, ys, target){
   }
   return null;
 }
-function lacCalc(t){
-  const s = t.stages.filter(x => x.lac != null);
-  const sp = s.map(x => x.speed), la = s.map(x => x.lac), hr = s.map(x => x.hr);
-  const v4 = lacInterp(sp, la, 4), v2 = lacInterp(sp, la, 2);
-  const hs = s.filter(x => x.hr != null);
-  const h4 = lacInterp(hs.map(x => x.hr), hs.map(x => x.lac), 4);
-  return {v4, v2, h4: h4 != null ? Math.round(h4) : null};
-}
 const IZ = [['I-1', 55, 72], ['I-2', 72, 82], ['I-3', 82, 87], ['I-4', 87, 92], ['I-5', 92, 100]];
+// Minste kvadraters tredjegradspolynom (for modifisert Dmax)
+function polyFit(xs, ys, deg){
+  const m = deg + 1, A = Array.from({length: m}, () => new Array(m + 1).fill(0));
+  xs.forEach((x, k) => {
+    for (let i = 0; i < m; i++){
+      for (let j = 0; j < m; j++) A[i][j] += Math.pow(x, i + j);
+      A[i][m] += ys[k] * Math.pow(x, i);
+    }
+  });
+  for (let i = 0; i < m; i++){
+    let p = i; for (let r = i + 1; r < m; r++) if (Math.abs(A[r][i]) > Math.abs(A[p][i])) p = r;
+    [A[i], A[p]] = [A[p], A[i]];
+    if (Math.abs(A[i][i]) < 1e-12) return null;
+    for (let r = 0; r < m; r++) if (r !== i){ const f = A[r][i] / A[i][i]; for (let c = i; c <= m; c++) A[r][c] -= f * A[i][c]; }
+  }
+  const c = A.map((row, i) => row[m] / row[i]);
+  return x => c.reduce((a, ci, i) => a + ci * Math.pow(x, i), 0);
+}
+const LAC_METHODS = {
+  ind: {name: 'Individuell', lt1: 'LT1 = der laktat har steget 0,5 mmol over laveste måling.', lt2: 'LT2 = modifisert Dmax: punktet på kurven lengst fra linjen mellom starten på stigningen og siste måling.'},
+  fix: {name: 'Fast 2 og 4 mmol', lt1: 'LT1 = farten der laktat er 2,0 mmol.', lt2: 'LT2 = farten der laktat er 4,0 mmol.'}
+};
+function lacCalc(t, method){
+  method = method || store.get('molle.lacMethod', 'ind');
+  const s = t.stages.filter(x => x.lac != null && x.speed);
+  const sp = s.map(x => x.speed), la = s.map(x => x.lac);
+  const hs = t.stages.filter(x => x.hr != null);
+  const hrAt = v => v == null ? null : (() => { const h = lacInterp(hs.map(x => x.hr), hs.map(x => x.speed), v); return h != null ? Math.round(h) : null; })();
+  const lacAt = v => { for (let i = 0; i < sp.length - 1; i++) if (sp[i] <= v && v <= sp[i + 1]) return la[i] + (v - sp[i]) * (la[i + 1] - la[i]) / (sp[i + 1] - sp[i]); return null; };
+  let v1 = null, v2 = null, l1 = null, l2 = null, curve = null;
+  if (method === 'fix' || s.length < 4){
+    v1 = lacInterp(sp, la, 2); l1 = v1 != null ? 2 : null;
+    v2 = lacInterp(sp, la, 4); l2 = v2 != null ? 4 : null;
+  } else {
+    // LT1: laveste måling + 0,5 mmol, lest av etter bunnpunktet
+    const iMin = la.indexOf(Math.min(...la));
+    const target = la[iMin] + 0.5;
+    v1 = lacInterp(sp.slice(iMin), la.slice(iMin), target); l1 = v1 != null ? target : null;
+    // LT2: modifisert Dmax
+    curve = polyFit(sp, la, Math.min(3, s.length - 1));
+    let i0 = 0; for (let i = 0; i < la.length - 1; i++) if (la[i + 1] - la[i] >= 0.4){ i0 = i; break; }
+    const x0 = sp[i0], y0 = la[i0], x1 = sp[sp.length - 1], y1 = la[la.length - 1];
+    if (curve && x1 > x0){
+      let best = -1;
+      for (let x = x0; x <= x1; x += (x1 - x0) / 400){
+        const y = curve(x);
+        const d = Math.abs((y1 - y0) * x - (x1 - x0) * y + x1 * y0 - y1 * x0) / Math.hypot(y1 - y0, x1 - x0);
+        if (d > best){ best = d; v2 = x; l2 = y; }
+      }
+      if (v2 != null && (v2 <= x0 + 1e-6 || v2 >= x1 - 1e-6)) v2 = l2 = null;
+    }
+  }
+  if (v1 != null && v2 != null && v1 >= v2) v1 = l1 = null;
+  return {method, v1, v2, l1, l2, h1: hrAt(v1), h2: hrAt(v2), curve, v4: lacInterp(sp, la, 4), lacAt};
+}
 
-function lacChart(t, prevT){
-  const W = 340, H = 220, L = 34, R = 38, T = 12, B = 30;
+function lacChart(t, r, prevT){
+  const W = 340, H = 240, L = 30, Rm = 36, T = 22, B = 34;
   const pts = t.stages.filter(x => x.lac != null);
-  const all = pts.concat(prevT ? prevT.stages.filter(x => x.lac != null) : []);
   if (!pts.length) return '<p class="hint">Legg inn laktat for å se kurven.</p>';
+  const all = pts.concat(prevT ? prevT.stages.filter(x => x.lac != null) : []);
   const xmin = Math.floor(Math.min(...all.map(x => x.speed)) - 0.5), xmax = Math.ceil(Math.max(...all.map(x => x.speed)) + 0.5);
   const ymax = Math.max(5, Math.ceil(Math.max(...all.map(x => x.lac)) + 0.5));
   const hrs = t.stages.filter(x => x.hr != null).map(x => x.hr);
-  const hmin = hrs.length ? Math.floor((Math.min(...hrs) - 10) / 10) * 10 : 100, hmax = hrs.length ? Math.ceil((Math.max(...hrs) + 10) / 10) * 10 : 200;
-  const X = v => L + (v - xmin) / (xmax - xmin) * (W - L - R);
+  const hmin = hrs.length ? Math.floor((Math.min(...hrs) - 10) / 10) * 10 : 0, hmax = hrs.length ? Math.ceil((Math.max(...hrs) + 10) / 10) * 10 : 1;
+  const X = v => L + (v - xmin) / (xmax - xmin) * (W - L - Rm);
   const Y = v => T + (1 - v / ymax) * (H - T - B);
   const YH = v => T + (1 - (v - hmin) / (hmax - hmin)) * (H - T - B);
   let g = '';
-  for (let y = 0; y <= ymax; y++) g += `<line x1="${L}" x2="${W - R}" y1="${Y(y)}" y2="${Y(y)}" class="gr"/><text x="${L - 6}" y="${Y(y) + 4}" class="ax" text-anchor="end">${y}</text>`;
+  // soner: under LT1, mellom, over LT2
+  const zx = [X(xmin), r.v1 != null ? X(r.v1) : null, r.v2 != null ? X(r.v2) : null, X(xmax)];
+  if (zx[1] != null) g += `<rect x="${zx[0]}" y="${T}" width="${zx[1] - zx[0]}" height="${H - T - B}" class="z1"/>`;
+  if (zx[1] != null && zx[2] != null) g += `<rect x="${zx[1]}" y="${T}" width="${zx[2] - zx[1]}" height="${H - T - B}" class="z2"/>`;
+  if (zx[2] != null) g += `<rect x="${zx[2]}" y="${T}" width="${zx[3] - zx[2]}" height="${H - T - B}" class="z3"/>`;
+  for (let y = 0; y <= ymax; y++) g += `<line x1="${L}" x2="${W - Rm}" y1="${Y(y)}" y2="${Y(y)}" class="gr"/><text x="${L - 6}" y="${Y(y) + 4}" class="ax" text-anchor="end">${y}</text>`;
   for (let x = xmin; x <= xmax; x++) g += `<text x="${X(x)}" y="${H - B + 16}" class="ax" text-anchor="middle">${x}</text>`;
-  [2, 4].forEach(v => { if (v <= ymax) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" class="ref"/>`; });
-  if (hrs.length) for (let h = hmin; h <= hmax; h += 20) g += `<text x="${W - R + 6}" y="${YH(h) + 4}" class="ax hr">${h}</text>`;
+  if (hrs.length) for (let h = hmin; h <= hmax; h += 20) g += `<text x="${W - Rm + 6}" y="${YH(h) + 4}" class="ax hr">${h}</text>`;
   const line = (arr, fy, cls) => arr.length > 1 ? `<polyline class="${cls}" points="${arr.map(p => `${X(p.speed).toFixed(1)},${fy(p).toFixed(1)}`).join(' ')}"/>` : '';
-  if (prevT){ const pp = prevT.stages.filter(x => x.lac != null); g += line(pp, p => Y(p.lac), 'prev'); }
+  if (prevT) g += line(prevT.stages.filter(x => x.lac != null), p => Y(p.lac), 'prev');
   const ph = t.stages.filter(x => x.hr != null);
-  g += line(ph, p => YH(p.hr), 'hrl') + ph.map(p => `<circle cx="${X(p.speed)}" cy="${YH(p.hr)}" r="3" class="hrd"/>`).join('');
-  g += line(pts, p => Y(p.lac), 'lacl') + pts.map(p => `<circle cx="${X(p.speed)}" cy="${Y(p.lac)}" r="4.5" class="lacd"/>`).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" class="lacsvg" role="img" aria-label="Laktat og puls mot fart">${g}
-    <text x="${L}" y="${H - 2}" class="ax">km/t</text></svg>
-    <div class="legend"><span><i class="lg-l"></i>Laktat (mmol)</span>${ph.length ? '<span><i class="lg-h"></i>Puls</span>' : ''}${prevT ? '<span><i class="lg-p"></i>Forrige test</span>' : ''}</div>`;
+  g += line(ph, p => YH(p.hr), 'hrl') + ph.map(p => `<circle cx="${X(p.speed)}" cy="${YH(p.hr)}" r="2.5" class="hrd"/>`).join('');
+  // tilpasset kurve (individuell metode) eller rett linje mellom målingene
+  if (r.curve){
+    const a = pts[0].speed, b = pts[pts.length - 1].speed, P = [];
+    for (let i = 0; i <= 60; i++){ const x = a + (b - a) * i / 60; P.push(`${X(x).toFixed(1)},${Y(Math.max(0, Math.min(ymax, r.curve(x)))).toFixed(1)}`); }
+    g += `<polyline class="lacl" points="${P.join(' ')}"/>`;
+  } else g += line(pts, p => Y(p.lac), 'lacl');
+  g += pts.map(p => `<circle cx="${X(p.speed)}" cy="${Y(p.lac)}" r="4.5" class="lacd"/>`).join('');
+  // terskellinjer
+  [[r.v1, r.l1, 'LT1', 't1'], [r.v2, r.l2, 'LT2', 't2']].forEach(([v, l, n, c]) => {
+    if (v == null) return;
+    g += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H - B}" class="tl ${c}"/><circle cx="${X(v)}" cy="${Y(l)}" r="5.5" class="td ${c}"/>
+      <text x="${X(v)}" y="${T - 7}" class="tt ${c}" text-anchor="middle">${n} ${dec(v)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" class="lacsvg" role="img" aria-label="Laktatkurve med LT1 og LT2">${g}
+    <text x="${W - Rm}" y="${H - 4}" class="ax" text-anchor="end">fart, km/t</text><text x="4" y="${T - 7}" class="ax">mmol</text></svg>
+    <div class="legend"><span><i class="lg-l"></i>Laktat</span>${ph.length ? '<span><i class="lg-h"></i>Puls</span>' : ''}${prevT ? '<span><i class="lg-p"></i>Forrige test</span>' : ''}
+    <span><i class="lg-z1"></i>Under LT1</span><span><i class="lg-z2"></i>Mellom LT1 og LT2</span><span><i class="lg-z3"></i>Over LT2</span></div>`;
 }
 
 function lacReport(t, el, onChange, opts){
@@ -1807,33 +1903,51 @@ function lacReport(t, el, onChange, opts){
     const r = lacCalc(t), all = lacTests();
     const prevT = all.find(x => x.id !== t.id && x.date < t.date);
     const hfmax = t.hfmax || store.get('molle.hfmax', 0);
-    const hs = t.stages.filter(x => x.hr != null);
-    const vAtHr = h => lacInterp(hs.map(x => x.speed), hs.map(x => x.hr), h);
+    const pct = h => h && hfmax ? ` · ${Math.round(h / hfmax * 100)} %` : '';
+    const card = (n, cls, v, l, h, txt) => `<div class="thr ${cls}"><span class="thn">${n}</span>
+      ${v != null ? `<span class="num">${dec(v)}<span class="unit">km/t</span></span>
+        <span class="thd">${pace(v)} · ${h ? h + ' slag/min' : 'puls –'}${pct(h)} · ${dec(l)} mmol</span>`
+      : `<span class="num">–</span><span class="thd">Ikke funnet i testen</span>`}
+      <span class="thx">${txt}</span></div>`;
+    // tabellrader med LT1 og LT2 satt inn på riktig plass
+    const zoneOf = v => r.v2 != null && v > r.v2 ? 'z3' : r.v1 != null && v > r.v1 ? 'z2' : r.v1 != null ? 'z1' : '';
+    const rows = t.stages.map((s, i) => ({k: s.speed, html: `<tr><td><span class="zd ${zoneOf(s.speed)}"></span>Trinn ${i + 1}</td><td>${dec(s.speed)}</td><td>${pace(s.speed).replace(' /km','')}</td><td>${s.hr || '–'}</td>
+      <td><input class="lacedit" data-st="${i}" inputmode="decimal" value="${s.lac == null ? '' : dec(s.lac)}" placeholder="–" aria-label="Laktat trinn ${i + 1}"></td></tr>`}));
+    [[r.v1, r.l1, r.h1, 'LT1', 't1'], [r.v2, r.l2, r.h2, 'LT2', 't2']].forEach(([v, l, h, n, c]) => {
+      if (v != null) rows.push({k: v + 1e-6, html: `<tr class="thrrow ${c}"><td><b>${n}</b></td><td>${dec(v)}</td><td>${pace(v).replace(' /km','')}</td><td>${h || '–'}</td><td>${dec(l)}</td></tr>`});
+    });
+    rows.sort((a, b) => a.k - b.k);
+    const zones = r.v1 != null && r.v2 != null ? `
+      <div class="zl"><span class="zd z1"></span><b>Rolig</b><span>under ${dec(r.v1)} km/t${r.h1 ? ` · under ${r.h1} slag/min` : ''}</span><span class="hint">Langkjøring og restitusjon, omtrent I-1 og I-2</span></div>
+      <div class="zl"><span class="zd z2"></span><b>Terskel</b><span>${dec(r.v1)}–${dec(r.v2)} km/t${r.h1 && r.h2 ? ` · ${r.h1}–${r.h2} slag/min` : ''}</span><span class="hint">Rolige og moderate intervaller, omtrent I-3</span></div>
+      <div class="zl"><span class="zd z3"></span><b>Hardt</b><span>over ${dec(r.v2)} km/t${r.h2 ? ` · over ${r.h2} slag/min` : ''}</span><span class="hint">Harde intervaller, omtrent I-4 og I-5</span></div>` : '';
+    const M = LAC_METHODS[r.method];
     el.innerHTML = `
-      <div class="lbl">Laktatprofil · ${new Date(t.date).toLocaleDateString('nb-NO', {day:'numeric', month:'long', year:'numeric'})}</div>
-      <div class="trio">
-        <div><span class="lbl">Fart ved 4 mmol</span><span class="num">${d1(r.v4)}</span><span class="hint">${r.v4 ? pace(r.v4) : 'ikke nådd'}</span></div>
-        <div><span class="lbl">Puls ved 4 mmol</span><span class="num">${r.h4 || '–'}</span><span class="hint">${r.h4 && hfmax ? Math.round(r.h4 / hfmax * 100) + ' % av maks' : '&nbsp;'}</span></div>
-        <div><span class="lbl">Fart ved 2 mmol</span><span class="num">${d1(r.v2)}</span><span class="hint">${r.v2 ? pace(r.v2) : 'ikke nådd'}</span></div>
+      <div class="lachead"><span class="lbl">Laktatprofil · ${new Date(t.date).toLocaleDateString('nb-NO', {day:'numeric', month:'long', year:'numeric'})}</span>
+        <div class="seg2" role="group" aria-label="Metode">${Object.entries(LAC_METHODS).map(([k, m]) => `<button type="button" data-meth="${k}" class="${k === r.method ? 'on' : ''}" aria-pressed="${k === r.method}">${m.name}</button>`).join('')}</div></div>
+      <div class="thrs">
+        ${card('LT1', 't1', r.v1, r.l1, r.h1, 'Aerob terskel. Under denne farten er det rolig langkjøring.')}
+        ${card('LT2', 't2', r.v2, r.l2, r.h2, 'Anaerob terskel. Høyeste fart du kan holde lenge uten at laktat hoper seg opp.')}
       </div>
-      <div class="lacchart">${lacChart(t, prevT)}</div>
-      <div class="tbl"><table>
-        <thead><tr><th>Trinn</th><th>km/t</th><th>Puls</th><th>Laktat</th></tr></thead>
-        <tbody>${t.stages.map((s, i) => `<tr><td>${i + 1}</td><td>${dec(s.speed)}</td><td>${s.hr || '–'}</td>
-          <td><input class="lacedit" data-st="${i}" inputmode="decimal" value="${s.lac == null ? '' : dec(s.lac)}" placeholder="–" aria-label="Laktat trinn ${i + 1}"></td></tr>`).join('')}</tbody>
+      <div class="lacchart">${lacChart(t, r, prevT)}</div>
+      <div class="tbl"><table class="lactbl">
+        <thead><tr><th>Trinn</th><th>km/t</th><th>min/km</th><th>Puls</th><th>Laktat</th></tr></thead>
+        <tbody>${rows.map(x => x.html).join('')}</tbody>
       </table></div>
-      ${hfmax ? `<div class="izone"><span class="lbl">Olympiatoppens I-skala · makspuls ${hfmax}</span>
-        ${IZ.map(([n, a, b]) => { const h1 = Math.round(hfmax * a / 100), h2 = Math.round(hfmax * b / 100), v1 = vAtHr(h1), v2 = vAtHr(h2);
-          return `<div><b>${n}</b><span>${h1}–${h2} slag/min</span><span>${v1 && v2 ? dec(v1) + '–' + dec(v2) + ' km/t' : v1 ? 'fra ' + dec(v1) + ' km/t' : v2 ? 'opp til ' + dec(v2) + ' km/t' : ''}</span></div>`; }).join('')}
-        <span class="hint">Pulssonene er veiledende, etter Olympiatoppens intensitetsskala. Farten er regnet ut fra pulsen i testen og vises bare innenfor farten du testet.</span></div>`
-      : `<p class="hint">Legg inn makspuls i oppsettet for laktatprofil, så får du pulssoner (I-1 til I-5) og fart for hver sone.</p>`}
-      <p class="hint">Fart og puls ved 2 og 4 mmol er lest av mellom målepunktene. Laktatverdier fra håndholdte målere kan avvike fra laboratoriet.</p>
+      ${zones ? `<div class="zones"><span class="lbl">Treningssoner fra testen</span>${zones}</div>` : ''}
+      <details class="lacinfo"><summary>Hvordan LT1 og LT2 er funnet</summary>
+        <p><b>${M.name}:</b> ${M.lt1} ${M.lt2}</p>
+        <p>Individuell metode trenger minst 4 målinger. Med færre brukes 2 og 4 mmol. Du kan rette laktatverdiene i tabellen, så regnes alt ut på nytt.</p>
+        <p>Laktat fra håndholdte målere kan avvike fra laboratoriet. Bruk tersklene som veiledning, og se dem sammen med hvordan farten kjennes.</p>
+        ${hfmax ? `<p>Olympiatoppens I-skala med makspuls ${hfmax}: ${IZ.map(([n, a, b]) => `${n} ${Math.round(hfmax * a / 100)}–${Math.round(hfmax * b / 100)}`).join(' · ')} slag/min.</p>` : ''}
+      </details>
       ${opts.del ? '<button type="button" class="btn ghost" data-lacdel>Slett testen</button>' : ''}`;
     el.querySelectorAll('.lacedit').forEach(inp => inp.onchange = () => {
       const v = parseNum(inp.value);
       t.stages[+inp.dataset.st].lac = inp.value.trim() === '' || isNaN(v) ? null : Math.round(v * 10) / 10;
       onChange && onChange(); draw();
     });
+    el.querySelectorAll('[data-meth]').forEach(b => b.onclick = () => { store.set('molle.lacMethod', b.dataset.meth); draw(); });
     const del = el.querySelector('[data-lacdel]');
     if (del) del.onclick = () => {
       if (!del.classList.contains('arm')){ del.classList.add('arm'); del.textContent = 'Trykk igjen for å slette'; return; }
@@ -1842,6 +1956,7 @@ function lacReport(t, el, onChange, opts){
   };
   draw();
 }
+
 function lacShowTest(i){
   const t = lacTests()[i]; if (!t) return;
   show('lacRes');
