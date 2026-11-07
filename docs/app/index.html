@@ -1777,7 +1777,7 @@ function lacCalc(t, method){
   } else {
     // LT1: laveste måling + 0,5 mmol, lest av etter bunnpunktet
     const iMin = la.indexOf(Math.min(...la));
-    const base = t.warm && t.warm.lac != null ? Math.min(t.warm.lac, la[iMin]) : la[iMin];
+    const base = t.warm && t.warm.lac != null && !t.warm.bad ? Math.min(t.warm.lac, la[iMin]) : la[iMin];
     const target = Math.round((base + 0.5) * 100) / 100;
     v1 = lacInterp(sp.slice(iMin), la.slice(iMin), target); l1 = v1 != null ? target : null;
     // LT2: knekkpunktet, der stigningen i kurven øker mest (mellom 2 og 6 mmol)
@@ -1798,7 +1798,8 @@ function lacChart(t, r, prevT){
   const pts = t.stages.filter(x => x.lac != null && !x.bad);
   const bad = t.stages.filter(x => x.lac != null && x.bad && x.speed);
   if (pts.length < 2) return `<div class="lacempty"><b>Grafen mangler laktatverdier</b><span>${pts.length ? 'Det trengs minst to målinger.' : 'Ingen laktat er lagt inn for denne testen.'} Skriv verdiene inn i Laktat-kolonnen i tabellen under, så kommer kurven, LT1 og LT2 med en gang.</span></div>`;
-  const wp = t.warm && t.warm.lac != null && t.warm.speed != null ? t.warm : null;
+  const wp = t.warm && t.warm.lac != null && t.warm.speed != null && !t.warm.bad ? t.warm : null;
+  if (t.warm && t.warm.bad && t.warm.lac != null && t.warm.speed != null) bad.push(t.warm);
   const all = pts.concat(prevT ? prevT.stages.filter(x => x.lac != null && !x.bad) : [], wp ? [wp] : [], bad);
   const xmin = Math.floor(Math.min(...all.map(x => x.speed)) - 0.5), xmax = Math.ceil(Math.max(...all.map(x => x.speed)) + 0.5);
   const ymax = Math.max(5, Math.ceil(Math.max(...all.map(x => x.lac)) + 0.5));
@@ -1921,18 +1922,18 @@ const numOrNull = v => { const n = parseNum(String(v).trim()); return String(v).
 function edTest(){
   const stages = ED.rows.filter(r => r.speed != null).map(r => Object.assign({speed: r.speed, hr: r.hr, lac: r.lac}, r.bad ? {bad: true} : {})).sort((a, b) => a.speed - b.speed);
   const w = ED.warm || {};
-  const warm = w.speed != null || w.lac != null || w.hr != null ? {speed: w.speed, hr: w.hr, lac: w.lac} : null;
+  const warm = w.speed != null || w.lac != null || w.hr != null ? Object.assign({speed: w.speed, hr: w.hr, lac: w.lac}, w.bad ? {bad: true} : {}) : null;
   return {id: ED.id || 'utkast', date: ED.date ? new Date(ED.date + 'T12:00').getTime() : Date.now(), hfmax: ED.hfmax || 0, warm, stages};
 }
 function edRender(){
   $('#edDate').value = ED.date || '';
   $('#edHf').value = ED.hfmax || '';
   const w = ED.warm;
-  $('#edRows').innerHTML = `<tr class="warmrow"><td title="Oppvarming">Oppv.</td>
+  $('#edRows').innerHTML = `<tr class="warmrow${w.bad ? ' bad' : ''}"><td title="Oppvarming">Oppv.</td>
     <td><input inputmode="decimal" data-r="w" data-f="speed" value="${w.speed == null ? '' : dec(w.speed)}" placeholder="km/t" aria-label="Fart oppvarming"></td>
     <td><input inputmode="numeric" data-r="w" data-f="hr" value="${w.hr == null ? '' : w.hr}" placeholder="–" aria-label="Puls oppvarming"></td>
     <td><input inputmode="decimal" data-r="w" data-f="lac" value="${w.lac == null ? '' : dec(w.lac)}" placeholder="mmol" aria-label="Laktat etter oppvarming"></td>
-    <td></td></tr>` + ED.rows.map((r, i) => `<tr class="${r.bad ? 'bad' : ''}">
+    <td class="acts"><button type="button" class="bd${w.bad ? ' on' : ''}" data-bad="w" aria-pressed="${!!w.bad}" aria-label="Marker oppvarming som feilmåling" title="Feilmåling">⊘</button></td></tr>` + ED.rows.map((r, i) => `<tr class="${r.bad ? 'bad' : ''}">
     <td>${i + 1}</td>
     <td><input inputmode="decimal" data-r="${i}" data-f="speed" value="${r.speed == null ? '' : dec(r.speed)}" placeholder="km/t" aria-label="Fart trinn ${i + 1}"></td>
     <td><input inputmode="numeric" data-r="${i}" data-f="hr" value="${r.hr == null ? '' : r.hr}" placeholder="–" aria-label="Puls trinn ${i + 1}"></td>
@@ -1964,7 +1965,7 @@ $('#lactate').addEventListener('input', e => {
 });
 $('#lactate').addEventListener('click', e => {
   const bd = e.target.closest('[data-bad]');
-  if (bd){ const r = ED.rows[+bd.dataset.bad]; r.bad = !r.bad; edSave(); edRender(); return; }
+  if (bd){ const r = bd.dataset.bad === 'w' ? ED.warm : ED.rows[+bd.dataset.bad]; r.bad = !r.bad; edSave(); edRender(); return; }
   const rm = e.target.closest('[data-rm]');
   if (rm){ ED.rows.splice(+rm.dataset.rm, 1); if (!ED.rows.length) ED.rows = emptyRows(1); edSave(); edRender(); return; }
   if (e.target.closest('#edAdd')){
@@ -1998,7 +1999,7 @@ $('#lactate').addEventListener('click', e => {
 function edLoad(t){
   const z = n => String(n).padStart(2, '0'), d = new Date(t.date);
   ED = {id: t.id, date: `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`, hfmax: t.hfmax || null,
-    warm: t.warm ? {speed: t.warm.speed ?? null, hr: t.warm.hr ?? null, lac: t.warm.lac ?? null} : {speed: null, hr: null, lac: null},
+    warm: t.warm ? {speed: t.warm.speed ?? null, hr: t.warm.hr ?? null, lac: t.warm.lac ?? null, bad: !!t.warm.bad} : {speed: null, hr: null, lac: null},
     rows: t.stages.map(s => ({speed: s.speed, hr: s.hr != null ? s.hr : null, lac: s.lac != null ? s.lac : null, bad: !!s.bad}))};
   edSave(); edRender(); window.scrollTo(0, 0);
 }
