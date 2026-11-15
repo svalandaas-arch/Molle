@@ -296,6 +296,19 @@ body.locked{overflow:hidden}
 .lacinfo p{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.45}
 @media (max-width:360px){.thrs{grid-template-columns:1fr}}
 .btn.arm{background:var(--danger);border-color:var(--danger);color:#fff}
+.runopts{display:flex;gap:8px;flex-wrap:wrap}
+.runopts[hidden]{display:none}
+.pill{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-weight:600;font-size:14px}
+.pill .sw{width:26px;height:16px;border-radius:999px;background:var(--line);position:relative;flex:none}
+.pill .sw::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--muted)}
+.pill[aria-pressed="true"]{border-color:var(--rest);color:var(--fg)}
+.pill[aria-pressed="true"] .sw{background:var(--rest)}
+.pill[aria-pressed="true"] .sw::after{left:12px;background:#fff}
+#rprogBtn.on{border-color:var(--work);color:var(--work)}
+.speed .tgt{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--rest);line-height:1;margin-bottom:2px}
+.speed.stand,.incline.stand{box-shadow:inset 0 0 0 2px var(--rest)}
+.nextwork{color:var(--fg)}
+.nextwork b{font-family:var(--display);font-size:20px;color:var(--work)}
 .stdrow{display:flex;flex-wrap:wrap;gap:8px}
 .stdrow .btn{flex:1 1 180px;height:48px}
 .stdrow .btn:disabled{opacity:.6;cursor:default}
@@ -340,7 +353,8 @@ body.locked{overflow:hidden}
 .stats .num{font-size:34px;font-weight:600;line-height:1}
 .stats .main .num{font-size:44px;color:var(--fg)}
 .stats .unit{font-size:16px;color:var(--muted);font-family:var(--body);margin-left:3px}
-.next{color:var(--muted);font-size:15px;display:flex;gap:8px;align-items:center}
+.next{color:var(--muted);font-size:15px;display:flex;flex-direction:column;gap:2px}
+.next > div{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
 .next b{color:var(--fg);font-weight:600}
 .timeline{display:flex;gap:2px;height:22px}
 .timeline span{position:relative;border-radius:3px;overflow:hidden;background:color-mix(in srgb,var(--c) 28%,var(--panel))}
@@ -503,10 +517,15 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
   <div class="upnext" id="upNext" hidden role="status" aria-live="polite"></div>
   <div class="lacbox" id="lacBox" hidden></div>
 
+  <div class="runopts" id="runOpts">
+    <button type="button" class="pill" id="standBtn" aria-pressed="false"><span class="sw"></span>Stillestående pause</button>
+    <button type="button" class="pill" id="rprogBtn">Økning: av</button>
+  </div>
+
   <div class="speed">
     <button data-sp="-0.5">−0,5</button>
     <button data-sp="-0.1">−0,1</button>
-    <div class="cur"><div class="num" id="speed">0,0</div><div class="lbl">km/t · <span id="pace"></span></div></div>
+    <div class="cur"><div class="tgt" id="spTarget" hidden>Neste drag</div><div class="num" id="speed">0,0</div><div class="lbl">km/t · <span id="pace"></span></div></div>
     <button data-sp="0.1">+0,1</button>
     <button data-sp="0.5">+0,5</button>
   </div>
@@ -528,6 +547,18 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
 
   <div class="next" id="next"></div>
   <div class="timeline" id="timeline"></div>
+
+  <div class="sheet" id="rprogSheet" hidden>
+    <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="rprogTitle">
+      <div class="sheet-head"><h2 id="rprogTitle">Økning underveis</h2><button type="button" class="btn" id="rprogDone">Ferdig</button></div>
+      <p class="hint">Endringen gjelder dragene som er igjen. Drag du har løpt, blir som de var.</p>
+      <div class="rows">
+        <div class="row"><span>Øk farten med</span><div class="stepper"><button type="button" data-rp="speed" data-d="-1" aria-label="Mindre">−</button><span class="val"><output id="rpSpeed">0,0</output><span class="u">km/t</span></span><button type="button" data-rp="speed" data-d="1" aria-label="Mer">+</button></div></div>
+        <div class="row"><span>For hvert</span><div class="stepper"><button type="button" data-rp="every" data-d="-1" aria-label="Mindre">−</button><span class="val"><output id="rpEvery">3</output><span class="u">. drag</span></span><button type="button" data-rp="every" data-d="1" aria-label="Mer">+</button></div></div>
+      </div>
+      <div class="progprev"><span class="lbl">Dragene som er igjen</span><div id="rpPrev"></div></div>
+    </div>
+  </div>
 
   <div class="ctrl">
     <button class="stop" id="stopBtn">Avslutt</button>
@@ -853,7 +884,8 @@ $('#progPerSet').onchange = e => { plan.prog.perSet = e.target.checked; showForm
 /* ---------- økt-modell ---------- */
 function buildSegs(p){
   const s = [];
-  const add = (type, dur, speed, label, inc=0) => s.push({type, dur, speed, plan:speed, inc: inc||0, label, elapsed:0, dist:0, climb:0, incT:0});
+  let progN = null;
+  const add = (type, dur, speed, label, inc=0) => { s.push(Object.assign({type, dur, speed, plan:speed, inc: inc||0, label, elapsed:0, dist:0, climb:0, incT:0}, type === 'work' && progN != null ? {progN} : {})); progN = null; };
   if (p.warmMin > 0) add('warm', p.warmMin*60, p.warmSpeed, 'Oppvarming', p.warmIncline);
   const perSet = p.steps.reduce((a,x) => a + x.reps, 0);
   const pg = p.prog || {};
@@ -870,6 +902,7 @@ function buildSegs(p){
       for (let r = 1; r <= x.reps; r++){
         k++; n++;
         const [bs, bi] = bump();
+        progN = n;
         add('work', x.workSec, Math.round((x.workSpeed + bs)*10)/10, p.sets > 1 ? `S${set} · Drag ${k}/${perSet}` : `Drag ${k}/${perSet}`, Math.round(((x.workIncline||0) + bi)*10)/10);
         const lastInSet = si === p.steps.length-1 && r === x.reps;
         if (!lastInSet){ if (x.restSec > 0) add('rest', x.restSec, x.restSpeed, 'Pause', x.restIncline); }
@@ -983,8 +1016,9 @@ function tick(){
     const seg = S.segs[S.idx];
     if (!seg.start){ seg.start = Date.now() - dt*1000; sample(seg.start); }
     const st = seg.free ? dt : Math.min(seg.dur - seg.elapsed, dt);
-    seg.elapsed += st; seg.dist += seg.speed*st/3600; S.total += st; dt -= st;
-    seg.climb = (seg.climb||0) + seg.speed*st/3.6*(seg.inc||0)/100; seg.incT = (seg.incT||0) + (seg.inc||0)*st;
+    const v = isStand(seg) ? 0 : seg.speed, vi = isStand(seg) ? 0 : (seg.inc||0);
+    seg.elapsed += st; seg.dist += v*st/3600; S.total += st; dt -= st;
+    seg.climb = (seg.climb||0) + v*st/3.6*vi/100; seg.incT = (seg.incT||0) + vi*st;
     const h = hrFresh(); if (h){ seg.hrSum = (seg.hrSum||0) + h*st; seg.hrT = (seg.hrT||0) + st; seg.hrMax = Math.max(seg.hrMax||0, h); }
     if (h && seg.dur - seg.elapsed <= 60){ seg.hrLs = (seg.hrLs||0) + h*st; seg.hrLt = (seg.hrLt||0) + st; }
     if (seg.free){ seg.dur = seg.elapsed; continue; }
@@ -1045,8 +1079,81 @@ function skip(){
   if (S.idx >= S.segs.length) return finish();
   buildTimeline(); render(); save();
 }
+/* ---------- stillestående pause: knappene styrer neste drag ---------- */
+let standOn = store.get('molle.standPause', false);
+const isStand = seg => !!(standOn && seg && (seg.type === 'rest' || seg.type === 'srest') && !(S && S.lac));
+function nextWorkIdx(from){
+  for (let j = from + 1; j < S.segs.length; j++) if (S.segs[j].type === 'work') return j;
+  return -1;
+}
+// Delen som fart- og stigningsknappene gjelder: neste drag i stillestående pause, ellers delen du er i
+function ctlIdx(){
+  const seg = S.segs[S.idx];
+  if (isStand(seg)){ const j = nextWorkIdx(S.idx); if (j >= 0) return j; }
+  return S.idx;
+}
+function standUI(){
+  const b = $('#standBtn');
+  b.setAttribute('aria-pressed', String(standOn));
+}
+$('#standBtn').onclick = () => {
+  standOn = !standOn; store.set('molle.standPause', standOn);
+  if (S && running) tick();
+  standUI(); if (S) render();
+};
+
+/* ---------- økning underveis ---------- */
+function rpGet(){
+  if (!S.plan) S.plan = clone(plan);
+  if (!S.plan.prog) S.plan.prog = {on:false, speed:0.2, every:3, incline:0, perSet:false};
+  // Eldre økter uten nummerering: nummerer dragene fortløpende
+  if (S.segs.some(x => x.type === 'work' && x.progN == null)){
+    let n = 0; S.segs.forEach(x => { if (x.type === 'work') x.progN = ++n; });
+  }
+  return S.plan.prog;
+}
+const rpBump = (g, n) => g.on ? Math.floor((n - 1) / Math.max(1, g.every || 1)) * (g.speed || 0) : 0;
+function rpSet(change){
+  if (!S) return;
+  if (running) tick();
+  const g = rpGet(), old = clone(g);
+  Object.assign(g, change);
+  g.speed = Math.max(0, Math.min(3, Math.round(g.speed * 10) / 10));
+  g.every = Math.max(1, Math.min(20, Math.round(g.every)));
+  g.on = g.speed > 0;
+  S.segs.forEach((x, i) => {
+    if (i <= S.idx || x.type !== 'work') return;
+    const d = rpBump(g, x.progN) - rpBump(old, x.progN);
+    if (d) x.speed = Math.max(0, Math.min(30, Math.round((x.speed + d) * 10) / 10));
+  });
+  save(); rpUI(); render();
+}
+function rpUI(){
+  if (!S) return;
+  const g = rpGet();
+  const btn = $('#rprogBtn');
+  btn.textContent = g.on ? `Økning +${dec(g.speed)} km/t / ${g.every === 1 ? 'drag' : g.every + '. drag'}` : 'Økning: av';
+  btn.classList.toggle('on', !!g.on);
+  if ($('#rprogSheet').hidden) return;
+  $('#rpSpeed').textContent = dec(g.speed);
+  $('#rpEvery').textContent = String(g.every);
+  const rest = S.segs.map((x, i) => ({x, i})).filter(o => o.i > S.idx && o.x.type === 'work');
+  $('#rpPrev').innerHTML = rest.length
+    ? rest.slice(0, 16).map(o => `<div><span>${o.x.label}</span><b>${dec(o.x.speed)} km/t · ${pace(o.x.speed)}</b></div>`).join('')
+    : '<div><span>Ingen drag igjen</span><b></b></div>';
+}
+$('#rprogBtn').onclick = () => { if (!S) return; $('#rprogSheet').hidden = false; rpUI(); };
+$('#rprogDone').onclick = () => { $('#rprogSheet').hidden = true; };
+$('#rprogSheet').addEventListener('click', e => {
+  if (e.target === $('#rprogSheet')){ $('#rprogSheet').hidden = true; return; }
+  const b = e.target.closest('[data-rp]'); if (!b || !S) return;
+  const g = rpGet(), d = +b.dataset.d;
+  if (b.dataset.rp === 'speed') rpSet({speed: (g.on ? g.speed : 0) + d * 0.1});
+  else rpSet({every: g.every + d});
+});
+
 function adjustInc(d){
-  const seg = S && S.segs[S.idx]; if (!seg) return;
+  const seg = S && S.segs[ctlIdx()]; if (!seg) return;
   if (running) tick();
   seg.inc = Math.max(0, Math.min(20, Math.round(((seg.inc||0) + d)*10)/10));
   render();
@@ -1055,12 +1162,12 @@ function buildSpChips(){
   $('#spChips').innerHTML = getChips().map(v => `<button type="button" data-set="${v}">${dec(v).replace(',0','')}</button>`).join('');
 }
 function adjust(d){
-  const seg = S.segs[S.idx]; if (!seg) return;
+  const ci = ctlIdx(), seg = S.segs[ci]; if (!seg) return;
   if (running) tick();
   const before = seg.speed;
   seg.speed = Math.max(0, Math.min(30, Math.round((seg.speed + d)*10)/10));
   const delta = seg.speed - before;
-  if (S.carry && seg.type === 'work' && delta) S.segs.forEach((s,i) => { if (i > S.idx && s.type === 'work') s.speed = Math.max(0, Math.min(30, Math.round((s.speed + delta)*10)/10)); });
+  if (S.carry && seg.type === 'work' && delta) S.segs.forEach((s,i) => { if (i > ci && s.type === 'work') s.speed = Math.max(0, Math.min(30, Math.round((s.speed + delta)*10)/10)); });
   render();
 }
 
@@ -1084,11 +1191,18 @@ function render(){
   lacUI();
   $('#skipBtn').disabled = !!(seg.free && S.idx === S.segs.length - 1);
   liveText();
-  $('#speed').textContent = dec(seg.speed);
-  $('#pace').textContent = pace(seg.speed);
-  $('#inc').textContent = dec(seg.inc||0);
+  const ctl = S.segs[ctlIdx()], stand = ctl !== seg;
+  $('#speed').textContent = dec(ctl.speed);
+  $('#pace').textContent = pace(ctl.speed);
+  $('#inc').textContent = dec(ctl.inc||0);
+  $('#spTarget').hidden = !stand;
+  $('#spTarget').textContent = stand ? `Neste drag · ${ctl.label.replace(/^S\d+ · /, '')}` : '';
+  document.querySelector('#run .speed').classList.toggle('stand', stand);
+  document.querySelector('#run .incline').classList.toggle('stand', stand);
+  $('#runOpts').hidden = !!S.lac;
+  standUI(); rpUI();
   $('#climb').textContent = `↑ ${Math.round(totClimb())} m`;
-  document.querySelectorAll('#spChips button').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.set - seg.speed) < 0.05));
+  document.querySelectorAll('#spChips button').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.set - ctl.speed) < 0.05));
   bgMeta(seg);
   pushNative();
   $('#totDist').firstChild.nodeValue = dec(totDist(), 2);
@@ -1096,7 +1210,10 @@ function render(){
   $('#totTime').textContent = fmtT(S.total);
   hrUI();
   const n = S.segs[S.idx+1];
-  $('#next').innerHTML = n ? `<span class="lbl">Neste</span> <b>${n.label}</b> ${fmtT(n.dur)} · ${dec(n.speed)} km/t` : (seg.free ? `Trykk «Endre» for å legge til intervaller` : `<span class="lbl">Neste</span> <b>Ferdig</b>`);
+  const nw = S.segs[nextWorkIdx(S.idx)];
+  const nPart = n ? `<div><span class="lbl">Neste</span> <b>${n.label}</b> ${fmtT(n.dur)} · ${n.type === 'work' ? `<span class="nextwork"><b>${pace(n.speed)}</b> · ${dec(n.speed)} km/t</span>` : (n.type === 'rest' || n.type === 'srest') && standOn && !S.lac ? 'stå stille' : `${dec(n.speed)} km/t`}</div>` : '';
+  const wPart = nw && nw !== n ? `<div><span class="lbl">Neste drag</span> <span class="nextwork"><b>${pace(nw.speed)}</b> · ${dec(nw.speed)} km/t</span></div>` : '';
+  $('#next').innerHTML = n ? nPart + wPart : (seg.free ? `Trykk «Endre» for å legge til intervaller` : `<div><span class="lbl">Neste</span> <b>Ferdig</b></div>`);
   [...$('#timeline').children].forEach((el,i) => {
     const s = S.segs[i];
     el.firstChild.style.width = (s.free ? 100 : s.dur ? s.elapsed/s.dur*100 : 100) + '%';
@@ -1570,7 +1687,7 @@ function pushNative(force){
   nativeLast = now;
   const seg = S && S.segs[S.idx];
   const st = seg
-    ? {active:true, running, speed: seg.speed, incline: seg.inc || 0, dist: totDist()*1000, label: seg.label, remain: segClock(seg)}
+    ? {active:true, running, speed: isStand(seg) ? 0 : seg.speed, incline: isStand(seg) ? 0 : (seg.inc || 0), dist: totDist()*1000, label: seg.label, remain: segClock(seg)}
     : {active:false, running:false, speed:0, dist:0, label:'', remain:''};
   try{ MolleNative.setState(JSON.stringify(st)); }catch{}
 }
@@ -1611,7 +1728,7 @@ function bgMeta(seg){
     const hr = typeof hrFresh === 'function' ? hrFresh() : 0;
     navigator.mediaSession.metadata = new MediaMetadata({
       title: `${seg.label} · ${left}${seg.free ? '' : ' igjen'}`,
-      artist: `${dec(totDist(), 2)} km · ${dec(seg.speed)} km/t · ${dec(seg.inc||0)} %${hr ? ' · ♥ ' + hr : ''}`,
+      artist: `${dec(totDist(), 2)} km · ${dec(isStand(seg) ? 0 : seg.speed)} km/t · ${dec(seg.inc||0)} %${hr ? ' · ♥ ' + hr : ''}`,
       album: 'Mølleintervaller',
       artwork: [{src:'icon-512.png', sizes:'512x512', type:'image/png'}]
     });
@@ -1652,7 +1769,7 @@ document.querySelectorAll('[data-sp]').forEach(b => b.onclick = () => adjust(par
 document.querySelectorAll('[data-inc]').forEach(b => b.onclick = () => adjustInc(parseFloat(b.dataset.inc)));
 $('#spChips').onclick = e => {
   const b = e.target.closest('[data-set]'); if (!b || !S) return;
-  const seg = S.segs[S.idx]; if (seg) adjust(+b.dataset.set - seg.speed);
+  const seg = S.segs[ctlIdx()]; if (seg) adjust(+b.dataset.set - seg.speed);
 };
 
 /* ---------- laktatprofil (Olympiatoppens protokoll) ---------- */

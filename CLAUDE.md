@@ -8,6 +8,8 @@ Intervallapp for tredemølla. Man setter opp økta på forhånd (oppvarming, ste
 
 Egen side for **laktatanalyse** (knappen i oppsettet): en tabell man fyller inn med oppvarming og fart, puls og laktat per trinn (laktat etter oppvarming brukes som bunnverdi for LT1 hvis lavere) (f.eks. fra en laktatprofil etter Olympiatoppens protokoll). Analysen oppdateres mens man skriver: LT1 og LT2 (individuell: bunn + 0,5 mmol og knekkpunkt = størst økning i stigning mellom 2 og 6 mmol, eller fast 2/4 mmol). Rader kan merkes som feilmåling (⊘, `bad: true`) og holdes utenfor utregningene, graf, soner etter Jack Daniels (VDOT fra T-fart = LT2) og Marius Bakken (laktatgrenser 2/3/4 mmol). Tester lagres i `molle.lactate`, utkastet i `molle.lacDraft`. Den gamle løpemodusen for laktattest (lacStart/lacFinish) finnes i koden, men har ingen knapp lenger.
 
+Under økta: knappen «Økning» endrer progresjonen (+fart / hvert N. drag) for resten av dragene (`rpSet`, lagres i `S.plan.prog`). «Stillestående pause» (`molle.standPause`): i pausene teller ikke distanse, og fartsknapper/stigning gjelder neste drag (`ctlIdx()`). Neste drag vises med min/km i «Neste»-feltet.
+
 ## Hvor ting ligger
 
 - `docs/` publiseres med GitHub Pages på https://svalandaas-arch.github.io/Molle/
