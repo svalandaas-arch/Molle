@@ -10,6 +10,8 @@ Egen side for **laktatanalyse** (knappen i oppsettet): en tabell man fyller inn 
 
 Under økta: knappen «Økning» endrer progresjonen (+fart / hvert N. drag) for resten av dragene (`rpSet`, lagres i `S.plan.prog`). «Stillestående pause» (`molle.standPause`): i pausene teller ikke distanse, og fartsknapper/stigning gjelder neste drag (`ctlIdx()`). Neste drag vises med min/km i «Neste»-feltet.
 
+Meny til venstre (☰, `#drawer`, `menuOpen()`): Ny økt, Kalender (`#cal`, `calRender()`), Laktatanalyse og Innstillinger (`#settings`: fartsendring, fiktiv rute, fartsknapper). Kalenderen viser økter fra `molle.hist` (nå opptil 1000, med `hr` og `up`; full fil `x` beholdes bare for de 12 nyeste) og laktattester.
+
 ## Hvor ting ligger
 
 - `docs/` publiseres med GitHub Pages på https://svalandaas-arch.github.io/Molle/

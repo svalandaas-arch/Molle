@@ -324,6 +324,78 @@ body.locked{overflow:hidden}
 .url{font-size:13px;color:var(--muted);user-select:all;word-break:break-all}
 .hist .k{font-family:var(--display);font-size:20px;font-weight:600;white-space:nowrap}
 
+/* ---------- Meny ---------- */
+.tophead{display:flex;align-items:flex-start;gap:12px}
+.tophead > div{min-width:0;flex:1}
+.menubtn{flex:none;width:44px;height:44px;margin:-4px 0 0 -8px;border-radius:10px;display:grid;place-items:center;color:var(--fg)}
+.menubtn svg{width:26px;height:26px}
+.menubtn:active{background:var(--panel2)}
+.drawer{position:fixed;inset:0;z-index:50}
+.drawer .scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s}
+.dpanel{position:absolute;top:0;bottom:0;left:0;width:min(300px,84vw);background:var(--panel);border-right:1px solid var(--line);
+  padding:calc(16px + env(safe-area-inset-top,0px)) 12px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:4px;
+  transform:translateX(-100%);transition:transform .22s ease-out;overflow-y:auto}
+.drawer.open .scrim{opacity:1}
+.drawer.open .dpanel{transform:none}
+.dhead{display:flex;align-items:center;gap:12px;padding:4px 8px 16px}
+.dhead img{width:40px;height:40px;border-radius:10px}
+.dhead b{font-family:var(--display);font-size:26px;text-transform:uppercase;line-height:1}
+.ditem{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:13px 12px;border-radius:10px;font-size:17px;font-weight:500}
+.ditem svg{width:22px;height:22px;flex:none;color:var(--muted)}
+.ditem:active{background:var(--panel2)}
+.ditem.on{background:var(--panel2);color:var(--work)}
+.ditem.on svg{color:var(--work)}
+.ditem.live{color:var(--work);border:1px solid var(--work);margin-bottom:8px}
+.ditem.live svg{color:var(--work)}
+.ditem small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+.dfoot{margin-top:auto;padding:12px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){.dpanel,.drawer .scrim{transition:none}}
+
+/* ---------- Kalender ---------- */
+.calmain,.setmain{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:20px 60px;display:flex;flex-direction:column;gap:20px}
+.wkcard{background:var(--panel);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.wkstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wkstats div{display:flex;flex-direction:column;min-width:0}
+.wkstats b{font-family:var(--display);font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.wkstats small{color:var(--muted);font-size:13px}
+.bars{display:flex;align-items:flex-end;gap:4px;height:64px}
+.bars span{flex:1;background:var(--line);border-radius:3px 3px 0 0;min-height:3px}
+.bars span.cur{background:var(--work)}
+.barlbl{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:-6px}
+.calnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.calnav h2{font-family:var(--display);font-size:26px;text-transform:uppercase;margin:0;letter-spacing:.02em}
+.calnav button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);font-family:var(--display);font-size:26px;line-height:1}
+.calnav button:disabled{opacity:.35;cursor:default}
+.msum{display:flex;gap:16px;color:var(--muted);font-size:14px;margin-top:-10px;flex-wrap:wrap}
+.msum b{color:var(--fg);font-weight:600}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) 52px;row-gap:4px}
+.cal .wd{text-align:center;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-bottom:4px}
+.cal .wd.wk{text-align:right}
+.cal .day{aspect-ratio:1;display:grid;place-items:center;border-radius:10px;font-variant-numeric:tabular-nums;font-size:14px;color:var(--fg);position:relative;min-height:40px}
+.cal .day.out{color:#4d585e}
+.cal .day.today{box-shadow:inset 0 0 0 1px var(--muted)}
+.cal .day.sel{background:var(--panel2);box-shadow:inset 0 0 0 1px var(--fg)}
+.cal .day .dot{display:grid;place-items:center;border-radius:50%;background:var(--work);color:#1a0d03;font-weight:700;font-family:var(--display);font-size:15px}
+.cal .day.out .dot{opacity:.45}
+.cal .day .dot.lac{background:var(--srest);color:#fff}
+.cal .day .dot.both{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--srest)}
+.cal .wsum{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;font-family:var(--display);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;padding-right:2px}
+.cal .wsum small{font-family:var(--body);font-size:11px;color:var(--muted);font-weight:500}
+.cal .wsum.zero{color:#4d585e}
+.listhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.acts{display:flex;flex-direction:column;gap:8px}
+.act{background:var(--panel);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.act-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.act-h b{display:block;font-family:var(--display);font-size:22px;text-transform:uppercase;letter-spacing:.01em;line-height:1.1;overflow-wrap:anywhere}
+.act-h .d{color:var(--muted);font-size:13px;display:block;margin-bottom:2px}
+.act-s{display:flex;flex-wrap:wrap;gap:6px 18px}
+.act-s span{display:flex;flex-direction:column}
+.act-s small{color:var(--muted);font-size:12px}
+.act-s b{font-family:var(--display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.act.lac{border-left:3px solid var(--srest)}
+.act-b{display:flex;gap:6px;flex-wrap:wrap}
+.calempty{background:var(--panel);border-radius:12px;padding:18px 14px;color:var(--muted);text-align:center}
+
 /* ---------- Løping ---------- */
 #run{height:100%;display:flex;flex-direction:column;max-width:640px;margin:0 auto;padding-inline:16px;padding-block:10px 14px;box-sizing:border-box;gap:10px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -383,12 +455,10 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
 
 <!-- OPPSETT -->
 <main id="setup">
-  <header>
+  <header class="tophead"><button type="button" class="menubtn" data-menu aria-label="Åpne meny" aria-controls="drawer" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div>
     <h1>Mølle<span>intervaller</span></h1>
-    <p class="sub">Still inn økta, start, og juster farten underveis så den stemmer med mølla. Distansen regnes ut fra fart og tid.</p>
-  </header>
-
-  <button type="button" class="laccard" id="lacOpenBtn"><span><b>Laktatanalyse</b><small>Fyll inn laktatprofilen og få terskler og soner</small></span><span class="arrow" aria-hidden="true">›</span></button>
+    <p class="sub">Still inn økta og start. Kalender, laktatanalyse og innstillinger finner du i menyen.</p>
+  </div></header>
 
   <div id="liveBar" class="livebar" hidden>
     <div class="lb-t"><span class="lbl">Økta pågår</span><b id="liveTxt"></b></div>
@@ -455,26 +525,7 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
     <button class="btn ghost" type="button" id="resetStd" hidden>Tilbake til standard</button>
   </div>
 
-  <label class="toggle" for="carry">
-    <span>Fartsendring gjelder resten av dragene<small>Skrur du opp farten 0,5 i et drag, blir resten av dragene også 0,5 raskere. Fungerer for pyramider også.</small></span>
-    <input type="checkbox" id="carry" checked>
-  </label>
 
-  <label class="toggle" for="fakeRoute">
-    <span>Fiktiv rute til Strava<small>Strava viser bare høydemeter når økta har en rute. Filen får derfor en rundløype på 400 m ute på Juvatn i Åseral, og økta merkes som virtuell løpetur.</small></span>
-    <input type="checkbox" id="fakeRoute">
-  </label>
-
-  <div class="toggle chipset">
-    <label for="spChipsIn">Fartsknapper under løping<small>Fart i km/t skilt med mellomrom, for eksempel «8 10 12 14 16,5». Trykk på en av dem under økta for å hoppe rett til den farten.</small></label>
-    <input id="spChipsIn" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-  </div>
-
-  <section id="histWrap" class="group" hidden>
-    <div class="lbl" style="margin-bottom:8px">Siste økter</div>
-    <div class="hist" id="hist"></div>
-    <p class="sub expmsg" id="histMsg" hidden></p>
-  </section>
 
   <div class="startbar"><div class="in">
     <div class="startrow">
@@ -553,11 +604,10 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
 
 <!-- LAKTATANALYSE -->
 <main id="lactate" class="lacmain" hidden>
-  <button type="button" class="back" id="lacBack">‹ Tilbake</button>
-  <header>
+  <header class="tophead"><button type="button" class="menubtn" data-menu aria-label="Åpne meny" aria-controls="drawer" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div>
     <h1>Laktat<span>analyse</span></h1>
     <p class="sub">Fyll inn resultatene fra en laktatprofil, for eksempel etter Olympiatoppens protokoll med trinn på 5 minutter. Du får LT1 og LT2, og treningssoner etter Jack Daniels og Marius Bakken.</p>
-  </header>
+  </div></header>
   <section class="edcard">
     <div class="edhead"><h2 id="edTitle">Ny test</h2><button type="button" class="link" id="edNew">+ Ny test</button></div>
     <div class="edmeta">
@@ -578,6 +628,57 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
     <div id="lacHist" class="lachist"></div>
   </section>
 </main>
+
+<!-- KALENDER -->
+<main id="cal" class="calmain" hidden>
+  <header class="tophead"><button type="button" class="menubtn" data-menu aria-label="Åpne meny" aria-controls="drawer" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div><h1>Kalen<span>der</span></h1></div></header>
+  <section class="wkcard" aria-label="Denne uka">
+    <span class="lbl">Denne uka</span>
+    <div class="wkstats" id="wkStats"></div>
+    <div class="bars" id="wkBars" aria-hidden="true"></div>
+    <div class="barlbl"><span>12 uker siden</span><span>Nå</span></div>
+  </section>
+  <div class="calnav"><button type="button" id="calPrev" aria-label="Forrige måned">‹</button><h2 id="calTitle"></h2><button type="button" id="calNext" aria-label="Neste måned">›</button></div>
+  <div class="msum" id="calSum"></div>
+  <div class="cal" id="calGrid"></div>
+  <div class="listhead"><span class="lbl" id="calListTitle"></span><button type="button" class="link" id="calAll" hidden>Vis hele måneden</button></div>
+  <div class="acts" id="calList"></div>
+  <p class="sub expmsg" id="histMsg" hidden></p>
+</main>
+
+<!-- INNSTILLINGER -->
+<main id="settings" class="setmain" hidden>
+  <header class="tophead"><button type="button" class="menubtn" data-menu aria-label="Åpne meny" aria-controls="drawer" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div><h1>Innstil<span>linger</span></h1></div></header>
+  <label class="toggle" for="carry">
+    <span>Fartsendring gjelder resten av dragene<small>Skrur du opp farten 0,5 i et drag, blir resten av dragene også 0,5 raskere. Fungerer for pyramider også.</small></span>
+    <input type="checkbox" id="carry" checked>
+  </label>
+
+  <label class="toggle" for="fakeRoute">
+    <span>Fiktiv rute til Strava<small>Strava viser bare høydemeter når økta har en rute. Filen får derfor en rundløype på 400 m ute på Juvatn i Åseral, og økta merkes som virtuell løpetur.</small></span>
+    <input type="checkbox" id="fakeRoute">
+  </label>
+
+  <div class="toggle chipset">
+    <label for="spChipsIn">Fartsknapper under løping<small>Fart i km/t skilt med mellomrom, for eksempel «8 10 12 14 16,5». Trykk på en av dem under økta for å hoppe rett til den farten.</small></label>
+    <input id="spChipsIn" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  </div>
+</main>
+
+
+<!-- MENY -->
+<div class="drawer" id="drawer" hidden>
+  <div class="scrim" data-dclose></div>
+  <nav class="dpanel" aria-label="Meny">
+    <div class="dhead"><img src="icon-192.png" alt=""><b>Mølle</b></div>
+    <button type="button" class="ditem live" data-go="live" hidden><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span>Tilbake til økta<small id="dLive"></small></span></button>
+    <button type="button" class="ditem" data-go="setup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></svg><span>Ny økt</span></button>
+    <button type="button" class="ditem" data-go="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Kalender</span></button>
+    <button type="button" class="ditem" data-go="lactate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z"/></svg><span>Laktatanalyse</span></button>
+    <button type="button" class="ditem" data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>Innstillinger</span></button>
+    <div class="dfoot">Øktene lagres på denne telefonen.</div>
+  </nav>
+</div>
 
 <script>
 (() => {
@@ -1227,8 +1328,11 @@ function finish(){
   lastRec = toRecord(S);
   if (S.total > 10){
     const h = store.get('molle.hist', []);
-    h.unshift({d: Date.now(), t: S.title, km, s: S.total, x: lastRec});
-    store.set('molle.hist', h.slice(0, 12));
+    const hrT = S.segs.reduce((a,s) => a + (s.hrT||0), 0);
+    h.unshift({d: Date.now(), t: S.title, km, s: S.total, hr: hrT ? Math.round(S.segs.reduce((a,s) => a + (s.hrSum||0), 0) / hrT) : 0, up: Math.round(totClimb()), x: lastRec});
+    // Hele filen (for ny eksport) beholdes for de 12 nyeste; eldre økter beholdes som sammendrag til kalenderen
+    h.forEach((x, i) => { if (i >= 12 && x.x){ const st = histStats(x); x.hr = st.hr; x.up = Math.round(st.up); delete x.x; } });
+    store.set('molle.hist', h.slice(0, 1000));
   }
   store.del('molle.active');
   renderDone();
@@ -1521,19 +1625,6 @@ function renderSetupExtras(){
     $('#resBtn').onclick = () => { r.hidden = true; startSession(a); };
     $('#discBtn').onclick = () => { store.del('molle.active'); r.hidden = true; };
   } else r.hidden = true;
-  const h = store.get('molle.hist', []);
-  $('#histWrap').hidden = !h.length;
-  $('#hist').innerHTML = h.map((x,i) => `<div><span><span>${x.t}</span><br><span class="d">${new Date(x.d).toLocaleDateString('nb-NO',{weekday:'short',day:'numeric',month:'short'})} · ${fmtT(x.s)}</span></span><span class="hr"><span class="k">${dec(x.km,2)} km</span><span class="hbtns">${x.x ? `<button class="mini" data-h="${i}" hidden>Lagre fil</button>` : ''}<button class="mini del" data-hdel="${i}">Slett</button></span></span></div>`).join('');
-  document.querySelectorAll('#hist [data-hdel]').forEach(b => b.onclick = () => {
-    if (!b.classList.contains('arm')){
-      b.classList.add('arm'); b.textContent = 'Bekreft';
-      setTimeout(() => { if (b.isConnected){ b.classList.remove('arm'); b.textContent = 'Slett'; } }, 3000);
-      return;
-    }
-    const hh = store.get('molle.hist', []); hh.splice(+b.dataset.hdel, 1); store.set('molle.hist', hh);
-    renderSetupExtras();
-  });
-  dl.then(d => { if (d) document.querySelectorAll('#hist [data-h]').forEach(b => { b.hidden = false; b.onclick = () => exportRec(h[b.dataset.h].x); }); });
 }
 
 /* ---------- pulsmåler (Bluetooth) ---------- */
@@ -1670,7 +1761,7 @@ async function lockScreen(){ try{ if ('wakeLock' in navigator && !wl) { wl = awa
 function releaseLock(){ try{ wl && wl.release(); }catch{} wl = null; }
 
 /* ---------- kobling ---------- */
-function show(id){ ['setup','run','done','lactate'].forEach(x => $('#'+x).hidden = x !== id); window.scrollTo(0,0); if (id === 'setup') syncSetup(); }
+function show(id){ ['setup','run','done','lactate','cal','settings'].forEach(x => $('#'+x).hidden = x !== id); curScreen = id; window.scrollTo(0,0); if (id === 'setup') syncSetup(); }
 $('#startBtn').onclick = () => S ? applyPlan() : startSession();
 $('#freeBtn').onclick = () => { if (!S) startFree(); };
 $('#editBtn').onclick = editLive;
@@ -2193,8 +2284,142 @@ function lacList(){
   }).join('');
 }
 $('#lacHist').addEventListener('click', e => { const b = e.target.closest('[data-lt]'); if (b){ edLoad(lacTests()[+b.dataset.lt]); lacList(); } });
-$('#lacOpenBtn').onclick = lacOpen;
-$('#lacBack').onclick = () => show('setup');
+
+/* ---------- meny ---------- */
+const drawer = $('#drawer');
+var curScreen = 'setup';
+function menuOpen(){
+  drawer.hidden = false;
+  const live = !!S;
+  drawer.querySelector('[data-go="live"]').hidden = !live;
+  if (live) $('#dLive').textContent = `${S.title} · ${fmtT(S.total)}`;
+  drawer.querySelectorAll('[data-go]').forEach(b => { const on = b.dataset.go === curScreen; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  document.querySelectorAll('[data-menu]').forEach(b => b.setAttribute('aria-expanded', 'true'));
+  requestAnimationFrame(() => requestAnimationFrame(() => drawer.classList.add('open')));
+  setTimeout(() => { const f = drawer.querySelector('.ditem.on') || drawer.querySelector('.ditem:not([hidden])'); if (f) f.focus(); }, 60);
+}
+function menuClose(){
+  if (drawer.hidden) return;
+  drawer.classList.remove('open');
+  document.querySelectorAll('[data-menu]').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  setTimeout(() => { drawer.hidden = true; }, 230);
+}
+document.addEventListener('click', e => { if (e.target.closest('[data-menu]')) menuOpen(); });
+drawer.addEventListener('click', e => {
+  if (e.target.closest('[data-dclose]')){ menuClose(); return; }
+  const b = e.target.closest('[data-go]'); if (!b) return;
+  const g = b.dataset.go;
+  menuClose();
+  if (g === 'live'){ if (S){ show('run'); render(); } }
+  else if (g === 'lactate') lacOpen();
+  else if (g === 'cal') calOpen();
+  else show(g);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !drawer.hidden) menuClose(); });
+// Sveip mot venstre lukker menyen
+(() => { let x0 = null; const p = drawer.querySelector('.dpanel');
+  p.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, {passive: true});
+  p.addEventListener('touchend', e => { if (x0 != null && x0 - e.changedTouches[0].clientX > 60) menuClose(); x0 = null; }, {passive: true});
+})();
+
+/* ---------- kalender ---------- */
+const dayKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const toDate = v => (typeof v === 'string' && /^\d{4}-\d\d-\d\d$/.test(v)) ? new Date(+v.slice(0,4), +v.slice(5,7)-1, +v.slice(8,10), 12) : new Date(v);
+const monday = d => { const m = new Date(d.getFullYear(), d.getMonth(), d.getDate()); m.setDate(m.getDate() - (m.getDay()+6)%7); return m; };
+let calM = null, calSel = null;
+function histStats(h){
+  let hr = h.hr || 0, up = h.up || 0;
+  if (h.x && h.x.segs && (!hr || !up)){
+    const sg = h.x.segs, t = sg.reduce((a,s) => a + (s.hrT||0), 0);
+    if (!hr && t) hr = Math.round(sg.reduce((a,s) => a + (s.hrSum||0), 0) / t);
+    if (!up) up = sg.reduce((a,s) => a + (s.climb||0), 0);
+  }
+  return {hr, up};
+}
+function calItems(){
+  const runs = store.get('molle.hist', []).map((h, i) => ({kind:'run', i, date: new Date(h.d), h}));
+  let labs = [];
+  try{ labs = lacTests().map((t, i) => ({kind:'lac', i, date: toDate(t.date), t})); }catch{}
+  return runs.concat(labs).filter(x => !isNaN(x.date)).sort((a,b) => b.date - a.date);
+}
+function calOpen(){ if (!calM){ const n = new Date(); calM = new Date(n.getFullYear(), n.getMonth(), 1); } calSel = null; show('cal'); calRender(); }
+function calRender(){
+  const items = calItems(), byDay = {};
+  items.forEach(x => { const k = dayKey(x.date); (byDay[k] = byDay[k] || []).push(x); });
+  const now = new Date(), today = dayKey(now);
+  // Denne uka + siste 12 uker
+  const m0 = monday(now), wk = [];
+  for (let w = 11; w >= 0; w--){ const a = new Date(m0); a.setDate(a.getDate() - 7*w); const b = new Date(a); b.setDate(b.getDate() + 7); wk.push({a, b, km: 0, s: 0, n: 0}); }
+  items.forEach(x => { if (x.kind !== 'run') return; const w = wk.find(w => x.date >= w.a && x.date < w.b); if (w){ w.km += x.h.km; w.s += x.h.s; w.n++; } });
+  const cw = wk[wk.length-1], maxKm = Math.max(1, ...wk.map(w => w.km));
+  $('#wkStats').innerHTML = `<div><b>${dec(cw.km, 1)} km</b><small>Distanse</small></div><div><b>${fmtT(cw.s)}</b><small>Tid</small></div><div><b>${cw.n}</b><small>${cw.n === 1 ? 'Økt' : 'Økter'}</small></div>`;
+  $('#wkBars').innerHTML = wk.map((w, i) => `<span class="${i === wk.length-1 ? 'cur' : ''}" style="height:${Math.max(4, w.km/maxKm*100)}%" title="${dec(w.km,1)} km"></span>`).join('');
+  // Måned
+  const y = calM.getFullYear(), mo = calM.getMonth();
+  const mName = calM.toLocaleDateString('nb-NO', {month:'long', year:'numeric'});
+  $('#calTitle').textContent = mName;
+  $('#calNext').disabled = y > now.getFullYear() || (y === now.getFullYear() && mo >= now.getMonth());
+  const mRuns = items.filter(x => x.kind === 'run' && x.date.getFullYear() === y && x.date.getMonth() === mo);
+  const mKm = mRuns.reduce((a,x) => a + x.h.km, 0), mS = mRuns.reduce((a,x) => a + x.h.s, 0);
+  $('#calSum').innerHTML = `<span><b>${mRuns.length}</b> ${mRuns.length === 1 ? 'økt' : 'økter'}</span><span><b>${dec(mKm, 1)}</b> km</span><span><b>${fmtT(mS)}</b></span>`;
+  let html = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'].map(d => `<span class="wd">${d}</span>`).join('') + '<span class="wd wk">Uke</span>';
+  const last = new Date(y, mo + 1, 0);
+  for (let d = monday(new Date(y, mo, 1)); d <= last; ){
+    let wKm = 0;
+    for (let i = 0; i < 7; i++, d.setDate(d.getDate() + 1)){
+      const k = dayKey(d), list = byDay[k] || [];
+      const runs = list.filter(x => x.kind === 'run'), labs = list.filter(x => x.kind === 'lac');
+      const km = runs.reduce((a,x) => a + x.h.km, 0); wKm += km;
+      const cls = ['day', d.getMonth() !== mo ? 'out' : '', k === today ? 'today' : '', k === calSel ? 'sel' : ''].join(' ');
+      const lbl = d.toLocaleDateString('nb-NO', {weekday:'long', day:'numeric', month:'long'}) + (runs.length ? `, ${runs.length} ${runs.length === 1 ? 'økt' : 'økter'}, ${dec(km,1)} km` : '') + (labs.length ? ', laktattest' : '');
+      if (list.length){
+        const sz = runs.length ? Math.round(22 + Math.min(km, 20) / 20 * 14) : 22;
+        html += `<button type="button" class="${cls}" data-day="${k}" aria-label="${lbl}"><span class="dot${runs.length ? (labs.length ? ' both' : '') : ' lac'}" style="width:${sz}px;height:${sz}px">${d.getDate()}</span></button>`;
+      } else html += `<span class="${cls}" aria-label="${lbl}">${d.getDate()}</span>`;
+    }
+    html += `<span class="wsum${wKm ? '' : ' zero'}">${wKm ? dec(wKm, 1) : '–'}${wKm ? '<small>km</small>' : ''}</span>`;
+  }
+  $('#calGrid').innerHTML = html;
+  // Liste
+  const shown = calSel ? (byDay[calSel] || []) : items.filter(x => x.date.getFullYear() === y && x.date.getMonth() === mo);
+  $('#calListTitle').textContent = calSel ? toDate(calSel).toLocaleDateString('nb-NO', {weekday:'long', day:'numeric', month:'long'}) : `Økter i ${calM.toLocaleDateString('nb-NO', {month:'long'})}`;
+  $('#calAll').hidden = !calSel;
+  $('#calList').innerHTML = shown.length ? shown.map(actCard).join('') : `<div class="calempty">${items.length ? 'Ingen økter denne måneden.' : 'Ingen økter ennå. Fullførte økter dukker opp her.'}</div>`;
+  dl.then(d => { if (d) document.querySelectorAll('#calList [data-h]').forEach(b => b.hidden = false); });
+}
+function actCard(x){
+  const when = x.date.toLocaleDateString('nb-NO', {weekday:'short', day:'numeric', month:'short'});
+  if (x.kind === 'lac'){
+    let r = {}; try{ r = lacCalc(x.t) || {}; }catch{}
+    const st = x.t.stages || [];
+    return `<article class="act lac"><div class="act-h"><div><span class="d">${when}</span><b>Laktattest</b></div></div>
+      <div class="act-s"><span><small>Trinn</small><b>${st.length}</b></span>${r.v1 ? `<span><small>LT1</small><b>${dec(r.v1)} km/t</b></span>` : ''}${r.v2 ? `<span><small>LT2</small><b>${dec(r.v2)} km/t</b></span>` : ''}</div>
+      <div class="act-b"><button type="button" class="mini" data-lt="${x.i}">Åpne</button></div></article>`;
+  }
+  const h = x.h, {hr, up} = histStats(h), avg = h.s ? h.km / h.s * 3600 : 0;
+  const tm = x.date.toLocaleTimeString('nb-NO', {hour:'2-digit', minute:'2-digit'});
+  return `<article class="act"><div class="act-h"><div><span class="d">${when} · ${tm}</span><b>${xmlEsc(h.t || 'Økt')}</b></div></div>
+    <div class="act-s"><span><small>Distanse</small><b>${dec(h.km, 2)} km</b></span><span><small>Tid</small><b>${fmtT(h.s)}</b></span><span><small>Snittempo</small><b>${pace(avg)}</b></span>${hr ? `<span><small>Snittpuls</small><b>${hr}</b></span>` : ''}${up >= 1 ? `<span><small>Høydemeter</small><b>${Math.round(up)} m</b></span>` : ''}</div>
+    <div class="act-b">${h.x ? `<button type="button" class="mini" data-h="${x.i}" hidden>Lagre fil</button>` : ''}<button type="button" class="mini del" data-hdel="${x.i}">Slett</button></div></article>`;
+}
+$('#calPrev').onclick = () => { calM = new Date(calM.getFullYear(), calM.getMonth() - 1, 1); calSel = null; calRender(); };
+$('#calNext').onclick = () => { calM = new Date(calM.getFullYear(), calM.getMonth() + 1, 1); calSel = null; calRender(); };
+$('#calAll').onclick = () => { calSel = null; calRender(); };
+$('#calGrid').addEventListener('click', e => { const b = e.target.closest('[data-day]'); if (!b) return; calSel = calSel === b.dataset.day ? null : b.dataset.day; calRender(); if (calSel) $('#calListTitle').scrollIntoView({behavior:'smooth', block:'start'}); });
+$('#calList').addEventListener('click', e => {
+  const lt = e.target.closest('[data-lt]');
+  if (lt){ const t = lacTests()[+lt.dataset.lt]; lacOpen(); if (t){ edLoad(t); lacList(); } return; }
+  const hb = e.target.closest('[data-h]');
+  if (hb){ const h = store.get('molle.hist', [])[+hb.dataset.h]; if (h && h.x) exportRec(h.x); return; }
+  const b = e.target.closest('[data-hdel]'); if (!b) return;
+  if (!b.classList.contains('arm')){
+    b.classList.add('arm'); b.textContent = 'Bekreft';
+    setTimeout(() => { if (b.isConnected){ b.classList.remove('arm'); b.textContent = 'Slett'; } }, 3000);
+    return;
+  }
+  const hh = store.get('molle.hist', []); hh.splice(+b.dataset.hdel, 1); store.set('molle.hist', hh);
+  calRender();
+});
 
 buildForm(); showForm(); soundIcon(); renderSetupExtras(); hrUI();
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
