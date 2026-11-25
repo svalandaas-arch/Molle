@@ -48,6 +48,12 @@ object BleHub {
     private val RSC_MEASUREMENT = uuid16(0x2A53)
     private val RSC_FEATURE = uuid16(0x2A54)
     private val SENSOR_LOCATION = uuid16(0x2A5D)
+    private val BATTERY_SERVICE = uuid16(0x180F)
+    private val BATTERY_LEVEL = uuid16(0x2A19)
+    private val DEVICE_INFO = uuid16(0x180A)
+    private val MANUFACTURER = uuid16(0x2A29)
+    private val MODEL = uuid16(0x2A24)
+    private val FIRMWARE = uuid16(0x2A26)
     private val HR_SERVICE = uuid16(0x180D)
     private val HR_MEASUREMENT = uuid16(0x2A37)
     private val CCCD = uuid16(0x2902)
@@ -106,6 +112,8 @@ object BleHub {
     private var advCallback: AdvertiseCallback? = null
     private val clients = mutableSetOf<BluetoothDevice>()
     private val subscribers = mutableSetOf<BluetoothDevice>()
+    // Android kan bare legge til én tjeneste om gangen. Resten venter her.
+    private val pendingServices = ArrayDeque<BluetoothGattService>()
     var rscOn = false
         private set
 
@@ -172,10 +180,18 @@ object BleHub {
             val value = when (characteristic.uuid) {
                 RSC_FEATURE -> byteArrayOf(0x06, 0x00) // totaldistanse + gå/løp-status
                 SENSOR_LOCATION -> byteArrayOf(0x02) // i skoen
+                BATTERY_LEVEL -> byteArrayOf(100)
+                MANUFACTURER -> "Molle".toByteArray()
+                MODEL -> "Molle Footpod".toByteArray()
+                FIRMWARE -> "1.0".toByteArray()
                 else -> rscValue()
             }
             val off = offset.coerceIn(0, value.size)
             server?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value.copyOfRange(off, value.size))
+        }
+
+        override fun onServiceAdded(status: Int, service: BluetoothGattService) {
+            main.post { addNextService() }
         }
 
         override fun onDescriptorReadRequest(device: BluetoothDevice, requestId: Int, offset: Int, descriptor: BluetoothGattDescriptor) {
@@ -217,20 +233,46 @@ object BleHub {
         service.addCharacteristic(meas)
         service.addCharacteristic(BluetoothGattCharacteristic(RSC_FEATURE, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ))
         service.addCharacteristic(BluetoothGattCharacteristic(SENSOR_LOCATION, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ))
-        srv.addService(service)
+        // Batteri og enhetsinfo: klokker spør ofte etter dette når de kobler til en sensor.
+        val battery = BluetoothGattService(BATTERY_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY)
+        battery.addCharacteristic(BluetoothGattCharacteristic(BATTERY_LEVEL, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ))
+        val info = BluetoothGattService(DEVICE_INFO, BluetoothGattService.SERVICE_TYPE_PRIMARY)
+        for (u in listOf(MANUFACTURER, MODEL, FIRMWARE))
+            info.addCharacteristic(BluetoothGattCharacteristic(u, BluetoothGattCharacteristic.PROPERTY_READ, BluetoothGattCharacteristic.PERMISSION_READ))
 
         server = srv
         measurement = meas
         advertiser = adv
         rscOn = true
-        startAdvertising(withName = true)
+        pendingServices.clear()
+        pendingServices.addLast(battery)
+        pendingServices.addLast(info)
+        advPending = true
+        srv.addService(service) // resten legges til i onServiceAdded, og så starter annonseringen
+        main.postDelayed({ if (advPending) { pendingServices.clear(); addNextService() } }, 3000)
         main.removeCallbacks(ticker)
         main.post(ticker)
         zwiftStatus("")
         TreadmillService.ensure(ctx)
     }
 
-    private fun startAdvertising(withName: Boolean) {
+    private var advPending = false
+
+    private fun addNextService() {
+        if (!rscOn) return
+        val next = pendingServices.removeFirstOrNull()
+        if (next != null) {
+            try { if (server?.addService(next) != true) addNextService() } catch (_: Exception) { addNextService() }
+            return
+        }
+        if (advPending) {
+            advPending = false
+            startAdvertising(0)
+        }
+    }
+
+    /** nameMode 0: navnet i selve annonsen, 1: i svaret på søk, 2: uten navn. */
+    private fun startAdvertising(nameMode: Int) {
         val adv = advertiser ?: return
         val settings = AdvertiseSettings.Builder()
             .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
@@ -239,9 +281,9 @@ object BleHub {
             .build()
         val data = AdvertiseData.Builder()
             .addServiceUuid(ParcelUuid(RSC_SERVICE))
-            .setIncludeDeviceName(false)
+            .setIncludeDeviceName(nameMode == 0)
             .build()
-        val scanResponse = AdvertiseData.Builder().setIncludeDeviceName(withName).build()
+        val scanResponse = AdvertiseData.Builder().setIncludeDeviceName(nameMode == 1).build()
         val cb = object : AdvertiseCallback() {
             override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
                 main.post { zwiftStatus("") }
@@ -249,9 +291,9 @@ object BleHub {
 
             override fun onStartFailure(errorCode: Int) {
                 main.post {
-                    if (errorCode == ADVERTISE_FAILED_DATA_TOO_LARGE && withName) {
-                        // Telefonnavnet er for langt til å sendes med. Prøv uten.
-                        startAdvertising(withName = false)
+                    if (errorCode == ADVERTISE_FAILED_DATA_TOO_LARGE && nameMode < 2) {
+                        // Telefonnavnet er for langt. Prøv neste plassering.
+                        startAdvertising(nameMode + 1)
                     } else if (errorCode != ADVERTISE_FAILED_ALREADY_STARTED) {
                         stopRsc()
                         zwiftStatus("Klarte ikke å starte fotpoden (feilkode $errorCode).")
@@ -270,6 +312,8 @@ object BleHub {
 
     fun stopRsc() {
         main.removeCallbacks(ticker)
+        pendingServices.clear()
+        advPending = false
         try { advCallback?.let { advertiser?.stopAdvertising(it) } } catch (_: Exception) {}
         try {
             for (d in clients.toList()) server?.cancelConnection(d)
