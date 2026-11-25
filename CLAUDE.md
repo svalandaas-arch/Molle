@@ -38,4 +38,4 @@ Meny til venstre (☰, `#drawer`, `menuOpen()`): Ny økt, Kalender (`#cal`, `cal
 
 ## Ikke testet ennå
 
-Fotpoden (telefonen sender seg ut som Bluetooth-fotpod, RSC 0x1814 + batteri 0x180F + enhetsinfo 0x180A, kortet «Fotpod for klokke og Zwift»): paring med eierens COROS Pace 3 fungerer (25.11.2026, versjon 1.29). Første forsøk ga «Retry» på klokka; uklart om løsningen var ny versjon eller å tvinge avslutning av COROS-appen. Fart/distanse under en hel økt er ikke bekreftet ennå. Pulsmåler og bakgrunnskjøring er ikke testet på ekte telefon.
+Fotpoden (telefonen sender seg ut som Bluetooth-fotpod, RSC 0x1814 + batteri 0x180F + enhetsinfo 0x180A, kortet «Fotpod for klokke og Zwift»): paring med eierens COROS Pace 3 fungerer (25.11.2026, versjon 1.29). Første forsøk ga «Retry» på klokka; det virket etter at eieren tvang COROS-appen til å avslutte (telefonen har trolig bare én kobling til klokka om gangen). Uklart om det trengs hver gang etter at fotpoden er paret. Fart/distanse under en hel økt er ikke bekreftet ennå. Pulsmåler og bakgrunnskjøring er ikke testet på ekte telefon.
