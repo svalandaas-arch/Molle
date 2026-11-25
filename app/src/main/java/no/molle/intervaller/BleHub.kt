@@ -254,7 +254,7 @@ object BleHub {
                         startAdvertising(withName = false)
                     } else if (errorCode != ADVERTISE_FAILED_ALREADY_STARTED) {
                         stopRsc()
-                        zwiftStatus("Klarte ikke å sende til Zwift (feilkode $errorCode).")
+                        zwiftStatus("Klarte ikke å starte fotpoden (feilkode $errorCode).")
                     }
                 }
             }
@@ -264,7 +264,7 @@ object BleHub {
             adv.startAdvertising(settings, data, scanResponse, cb)
         } catch (e: Exception) {
             stopRsc()
-            zwiftStatus("Klarte ikke å sende til Zwift.")
+            zwiftStatus("Klarte ikke å starte fotpoden.")
         }
     }
 

@@ -38,4 +38,4 @@ Meny til venstre (☰, `#drawer`, `menuOpen()`): Ny økt, Kalender (`#cal`, `cal
 
 ## Ikke testet ennå
 
-Zwift-fotpod, pulsmåler og bakgrunnskjøring i Android-appen er ikke testet på ekte telefon.
+Fotpoden (telefonen sender seg ut som Bluetooth-fotpod, RSC 0x1814, kortet «Fotpod for klokke og Zwift»), pulsmåler og bakgrunnskjøring i Android-appen er ikke testet på ekte telefon. Eieren har COROS Pace 3 (bare Bluetooth).

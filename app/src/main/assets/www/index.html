@@ -501,7 +501,7 @@ td:first-child{font-family:var(--body);font-size:15px;display:flex;align-items:c
   <div class="hrlist" id="hrList"></div>
 
   <section class="hrcard zwcard" id="zwCard" hidden>
-    <div><b><span class="zwi">⇄</span> Zwift-fotpod</b><div class="hint" id="zwStatus">Sender farten din til Zwift</div></div>
+    <div><b><span class="zwi">⇄</span> Fotpod for klokke og Zwift</b><div class="hint" id="zwStatus">Telefonen later som den er en fotpod og sender farten til klokka</div></div>
     <button class="btn" type="button" id="zwBtn">Slå på</button>
   </section>
 
@@ -1758,8 +1758,8 @@ window.onNativeZwift = (on, clients, phone, msg) => {
   $('#zwCard').classList.toggle('on', on);
   $('#zwBtn').textContent = on ? 'Slå av' : 'Slå på';
   $('#zwStatus').textContent = msg || (on
-    ? (clients ? 'Koblet til Zwift. Farten din sendes.' : `Venter på Zwift. Velg ${phone ? '«' + phone + '»' : 'telefonen'} under «Run Speed» i Zwift.`)
-    : 'Sender farten din til Zwift');
+    ? (clients ? 'Koblet til. Farten din sendes.' : `Venter på klokka. Legg til fotpod på klokka og velg ${phone ? '«' + phone + '»' : 'telefonen'}.`)
+    : 'Telefonen later som den er en fotpod og sender farten til klokka');
 };
 window.onNativeMessage = msg => {
   if (nativeFocus === 'zw') $('#zwStatus').textContent = msg;

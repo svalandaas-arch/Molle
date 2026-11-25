@@ -80,7 +80,7 @@ class TreadmillService : Service() {
             "Mølleintervaller"
         val parts = mutableListOf<String>()
         if (BleHub.rscOn) {
-            parts.add(if (BleHub.zwiftConnected) "Zwift: ${BleHub.rscSpeedText()} km/t" else "Venter på Zwift")
+            parts.add(if (BleHub.zwiftConnected) "Fotpod: ${BleHub.rscSpeedText()} km/t" else "Fotpod venter på klokka")
         }
         if (BleHub.hrConnected) parts.add(if (BleHub.hrBpm > 0) "Puls ${BleHub.hrBpm}" else "Pulsmåler tilkoblet")
         val open = PendingIntent.getActivity(
